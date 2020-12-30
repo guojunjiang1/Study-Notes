@@ -84,9 +84,19 @@ B向A发出pullRequest请求，希望将修改同步到A远程库，A进行审�
        git remote add 别名 原地址名（以后直接操作别名，即是操作原地址名）
        git remote -v：查看已设置的别名
 ④：A将本地库内容push到远程库
-       git push 别名/地址名 分支名
+       git push 别名/地址名 本地分支名
 ⑤：B将远程库代码克隆到本地
        git clone 远程库地址  
+⑥：A邀请B加入到团队中
+       A在github的仓库的setting,MangeAccess中输入想要邀请的成员名字，邀请加入即可。
+       B在github上点击接受，这样B就加入了A的团队了
+⑦：此时B就可以做操作，然后提交到本地库，然后推送到github了
+⑧：A将B修改的内容拉取到本地库
+       一：git pull 远程库别名/地址名 远程库分支名
+       二：git fetch 远程库别名/地址名 远程库分支名+git merge 远程库别名/远程库分支名
+      pull=fetch+merge，pull直接将远程库内容拉取到本地并覆盖本地内容
+      fetch：将远程库内容拉取到本地，merge：将远程库内容合并到本地库
+      可以在本地库checkout 远程库别名/远程库分支名，来查看远程库拉取下来的内容
 
 idea中将代码存放到github的步骤：	
 一：在IDEA中配置git，配置github
@@ -96,34 +106,41 @@ idea中将代码存放到github的步骤：
       vcs->git->add，vcs->git->commit，vcs->git->push
 
 ***常用命令：
-①：创建并切换到新创建的分支下：
-git checkout -b <分支名>
+①：本地库的命令
+git init:初始化本地库
+git config user.name <名称>：设置签名名称，git config user.email <名称>：设置签名邮箱
+git add <文件名>：将文件添加到暂存区，git add . ：将当前目录下所有文件添加到暂存区
+git commit -m "提交信息" <文件名>：将文件添加到本地库，git commit -m “提交信息”. ：将所有文件添加到本地库
 
-②：将分支合并到主干:
-先切换到主干 git checkout master
-git merge <分支名> （将分支合并到现在所在的主干）
+②：分支命令
+git branch <分支名>：创建分支
+git checkout <分支名>：切换分支
+git checkout -b <分支名>：创建并切换到新创建的分支下
+git merge <分支名>：当前所在分支合并指定的分支名
+git checkout master，git branch -D<分支名>：删除分支
 
-③：删除分支：
-先切换到主干 git checkout master
-git branch -D <分支名>
-
-④：查看git的提交记录：
+③：查看git的提交记录：
 git log
+git reflog
+git log --pretty=oneline
+
+④：版本的回退/前进
+git reset --hard <版本号>:回退/前进到指定版本
 
 ⑤：查看git工作区，暂存区的变更情况
 git status
 
-⑥：拉取远程最新的变更到本地，拉取远程仓库的代码
-git fetch，git pull
+⑥：为远程库httpUrl设置别名
+git remote add <别名> <原地址名>
 
-⑦：将代码还原到某个版本
-git reset --hard 版本号
-
-⑧：最近的git执行命令
-git reflog
-
-⑨：git工作区提交到暂存区，提交到仓库，提交到远程仓库
-git add，git commit -m，git push
+⑦：远程库的命令
+git push <别名/远程地址名> <本地分支名>：将本地库内容提交到远程库
+git clone <别名/远程地址名> ：将远程库克隆一份到本地库
+git pull <别名/远程地址名> <远程分支名>：将远程库新增内容拉取到本地库并直接合并
+pull=fetch+merge
+git fetch <别名/远程地址名> <远程分支名>：将远程库新增内容拉取到本地，并创建一个分支
+git checkout <别名/远程分支名>：切换到刚fetch创建的分支，可以查看拉取下来的内容
+git merge <别名/远程分支名>：将fetch拉取下来的内容合并到本地库中
 
 ⑩：有的时候，本地分支在master分支，然后忘了切其他的分支去修改，直接在master改了，然后也push到远程了。
 等你发现的时候，你会真的想骂自己。
