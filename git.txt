@@ -58,7 +58,7 @@ eg:git diff fb3c a.txt（当前工作区中的a.txt和版本为fb3c的a.txt进�
           git merge 分支名：合并分支（当前分支合并指定的分支）
 合并分支：①：创建出新的分支并切换过去，然后做一些操作
 	 ②：切换到要被新增内容的分支
-                ③：执行合并命令
+                 ③：执行合并命令
 
 *分支合并冲突
 场景：分支a和分支b都对同一个文件进行了修改，然后分支b要将a合并过来，执行merge时就发生冲突了
@@ -71,10 +71,6 @@ eg:git diff fb3c a.txt（当前工作区中的a.txt和版本为fb3c的a.txt进�
 一：团队内协作
 A将本地库push到远程库，B将远程库所有数据clone到本地库，B进行修改然后将修改内容push到远程库
 A再到远程库把B修改的内容pull到本地库 
-二：跨团队协作
-A将远程库fork一份新的给B
-B到远程库将代码clone到本地库，进行修改，然后push回去(注意:此时只会push到B的远程库，A的远程库没有修改)
-B向A发出pullRequest请求，希望将修改同步到A远程库，A进行审核然后将B请求的内容merge合并到A远程库
 
 *详细步骤
 ①：在本地创建出本地库
@@ -97,6 +93,27 @@ B向A发出pullRequest请求，希望将修改同步到A远程库，A进行审�
       pull=fetch+merge，pull直接将远程库内容拉取到本地并覆盖本地内容
       fetch：将远程库内容拉取到本地，merge：将远程库内容合并到本地库
       可以在本地库checkout 远程库别名/远程库分支名，来查看远程库拉取下来的内容
+
+*本地库与远程库的冲突
+问题的产生：
+本地库拉取远程库内容下来，然后进行修改，准备提交到远程库的时候，发生了冲突（其他人先一步对远程库进行了提交）
+问题的解决：（和解决分支冲突类似）
+①：先将远程库的最新内容pull下来
+②：然后对产生冲突的文件进行修改
+       add到暂存区
+       commit到本地库（commit时不能加文件名）
+③：将修改后的内容push到远程库
+
+二：跨团队协作
+①：B将A的远程库fork(github页面上就有)一份新的出来
+②：B到远程库将代码clone到本地库，进行修改，然后push回去(注意:此时只会push到B的远程库，A的远程库没有修改)
+③：B向A发出pullRequest请求，在github上：点击Pull requests
+				      new pull request
+				      create pull request：向原仓库主即A，发出修改请求
+④：A审核B请求的内容，在github上：点击Pull requests
+			          点击Commits和Files changed：查看B做了哪些提交，和具体文件的修改
+⑤：A将B请求的内容合并到远程库：在github上：点击Merge pull request
+⑥：A将远程库的内容再pull同步到本地库就可以啦
 
 idea中将代码存放到github的步骤：	
 一：在IDEA中配置git，配置github
