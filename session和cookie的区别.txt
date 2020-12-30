@@ -1,0 +1,7 @@
+seesion也是基于cookie的，通过cookie来生成sessionId
+session是存放在服务器的，cookie是存放在客户端的
+cookie存放的数据有大小的限制
+cookie无法存放对象，session可以存放对象
+
+cookie被禁用，如何使用session？
+当cookie被禁用后，可以通过URL重写，将sessionId直接附加到URL后面

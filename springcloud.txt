@@ -1,0 +1,45 @@
+SpringCloud：
+一：服务注册中心：eureka （zookeeper，consul）
+eureka的原理：服务向eureka进行服务注册，会将信息注册到服务注册表中，定时向eureka发送心跳来保证自己是健康状态
+	        服务向eureka进行服务发现，从eureka的readonly缓存中拉取对应服务的信息。
+	       （服务的信息存放在服务注册表中，定时将信息同步到readWrite缓存中，readonly缓存再从readWrite中获取服务的信息）
+	        这么做是为了解决服务注册和服务发现同时并发时锁的问题，提高效率
+eureka的自我保护机制：当服务由于某些原因停止发送心跳后，eureka并不会第一时间将该服务从注册中心除名（AP，保证高可用追求最终一致性）
+二：服务调用：ribbon feign（openFeign）
+原理：从eureka拉取对应服务的列表，负载均衡选择一个后，根据ip和port发送http请求发起调用
+三：服务配置：config+bus
+四：服务治理：hystrix，服务监控：dashboard
+hystrix：服务治理：降级：自己方法上添加hystrixcommand（fallback）
+	              熔断：自己方法上添加hystrixcommand（fallback+参数）
+	              feign：fallback
+	              ribbon：提供方，方法上添加hystrixcommand（fallback+参数）	
+五：stream流，对多种MQ进行封装
+六：链路调用：sleath zipkin
+七：服务网关：zull（gateway）
+原理：请求到达网关之后，根据配置的路由找到对应的服务，根据服务名到eureka获取该服务的列表，负载均衡选取一个后，将请求修改ip和port后转发到对应服务
+八：分布式事务：seata，解决在分布式情况下，多个系统联调时的事务解决，常规的本地事务只能控制本机的普通事务而多台机器的联调事务可以用seata解决
+		      在conf目录下配置file.conf文件，里面配置文件日志的存储方式为db，并指定db的地址，再在db中新建seata数据库和3张表
+		      在conf目录下配置registry.conf文件，里面配置seata注册到nacos中，并指定nacos的地址
+		      为每一个涉及到的业务数据库添加日志表
+		      业务发起处TM，添加GlobalTransactional注解
+		      为每一个涉及到的业务重新配置数据源
+		      在每一个涉及到的业务服务中，添加file.conf,registry.conf
+
+SpringCloud alibaba:
+一：服务注册＋服务配置：Nacos
+二：服务治理：sintinel
+三：分布式事务：seata
+sentinel：服务治理：降级：自己在方法上添加sentinelResource（fallback）
+		fallback:代码出错执行fallback，blockhandler：触发sentinel配置的错误后执行blockhandler
+		熔断：自己在方法上添加sentinelResource（fallback+blockhandler），sentinel图像化界面+参数（错误率，错误次数达到后开启熔断）
+		feign：fallbcak
+		ribbon：提供方，在方法上添加sentinelResource（fallback+blockhandler），sentinel图像化界面+参数
+		Hystrix熔断和sentinel熔断的区别：Hystrix在熔断后处于半开状态，接收用户的请求直接返回熔断方法，当用户的请求正确率达到一定次数后，关闭熔断
+					     Sentinel在熔断后，在指定的时间窗口内所有请求直接返回熔断方法，当过了时间窗口再关闭熔断		
+
+		限流：自己在方法上添加sentinelResource（blockhandler），sentinel图像化界面+参数
+		          方法限流：根据URL或sentinelResource的Value来选定一个资源：限流的类型：直接（限流自己），关联（B达到阈值限流A）
+			           限流的方法：直接（阈值是多少，就是多少） 预热（常见于秒杀刚开启时，刚开始阈值为设定阈值的1/3，过一段时间慢慢达到阈值） 排队（所有请求都接收，但是得排队执
+			           行，排队的请求超过设定时间后出发限流）
+		          参数限流：根据URL或sentinelResource的Value来选定一个资源并指定他的一个方法参数（只能是基本数据类型）常见于热点数据
+			           指定一个热点参数后，可指定一个具体的值（eg：参数A=5（热点数据）时，允许的qps为80，其他参数A=X允许的qps为20）

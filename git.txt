@@ -1,0 +1,135 @@
+分布式的版本管理工具：git
+单点式的版本管理工具：svn
+
+*git可以划分为：本地仓库（本机上的git）和远程仓库（github,gitee或者gitlab）
+*远程仓库：外网(github,gitee)所有人都能看到，内网(gitlab)公司内部使用
+*本地仓库又可以划分为三个概念：工作区  (平时代码存放的地方且带有.git的文件)
+  			   暂存区（工作区代码执行add命令添加到暂存区,可以提交/撤回）
+			   本地库（代码执行commit添加到仓库中，git当中）	  
+
+*本地库的操作流程(窗口版)
+①：在写代码的工作目录右键添加到工作区
+②：根据Tortoise将代码添加(add)到暂存区
+③：将代码再提交(commit)到本地库
+
+*本地库的操作流程(命令行版)
+①：在写代码的工作目录打开git bash，执行git init(将代码添加到工作区)
+②：设置签名(用于标识当前操作的用户)
+       *项目签名:设置当前工作区的签名（仅在当前工作区内有效，跳转到新的工作区需要重新设置签名）
+       *系统签名:设置整个操作系统的签名(设置一次后，跳转到新的工作区也可以用系统签名)
+       签名优先级：之前设置了系统签名，在新的工作区中又设置了项目签名，则在新的工作区以项目签名为准
+       （项目签名的内容保存在.git/config中，系统签名在windows根目录下/.gitconfig中）
+       设置方式：
+       git config user.name 用户名	git config user.email 邮箱(项目级别设置方式)
+       git config --global user.name 用户名    git config --global user.email  邮箱(系统级别设置方式)
+③：将工作区代码提交到暂存区
+       git add 文件名
+       *添加到暂存区的代码可以撤回，git restore --staged 文件名
+④：将暂存区代码提交到本地库
+       git commit 文件名（在提交时，需要进入vim编辑器添加提交信息）
+       git commit -m "提交信息" 文件名（这样不需要进vim编辑器）
+
+*本地库中版本的前进和后退
+①：先通过git reflog打印出提交的各个版本及对应的索引号
+②：此时选择想要到的版本对应的索引号
+       git reset --hard 索引：跳转到对应版本
+	        （将工作区，暂存区，本地库的版本都统一变到对应版本）
+       	    --soft 索引：（仅将本地库变到对应版本）
+ 	    --mixed 索引：（将本地库，暂存区跳到对应版本）
+
+*文件删除后找回的方法
+前提：删除前，文件已经提交到本地库
+删除后，将删除文件信息再提交到本地库（指定文件名即可）
+rm 文件，可以通过git reset --hard 索引：跳转到删除前的版本即可恢复
+	             git restore 文件名：撤销这次删除操作
+
+*文件差异比较
+git diff 版本索引 文件名
+eg:git diff fb3c a.txt（当前工作区中的a.txt和版本为fb3c的a.txt进行内容的比较）
+
+*分支
+分支：可以看做是克隆出一份新的matser，内容一模一样（我们创建出的git默认即是master分支）
+作用：在开发中，可以推进多个版本的开发
+          各个分支之间相互独立，某一分支开发失败不会影响其它分支，且分支修改内容其它分支是感知不到的
+          分支开发成功后，合并到matser主分支即可。
+命令：git branch 分支名：创建分支
+          git branch -v：查看所有的分支
+          git checkout 分支名：切换分支
+          git merge 分支名：合并分支（当前分支合并指定的分支）
+合并分支：①：创建出新的分支并切换过去，然后做一些操作
+	 ②：切换到要被新增内容的分支
+                ③：执行合并命令
+
+*分支合并冲突
+场景：分支a和分支b都对同一个文件进行了修改，然后分支b要将a合并过来，执行merge时就发生冲突了
+冲突展示：打开冲突文件后，head->>下面为当前分支冲突的内容，====下面为目标合并分支冲突的内容
+解决方式：手动到冲突文件中，对内容做修改
+                 git add 文件名
+ 	 git commit（直接commit就行，不需要写文件名）
+
+*本地库和远程库的交互
+一：团队内协作
+A将本地库push到远程库，B将远程库所有数据clone到本地库，B进行修改然后将修改内容push到远程库
+A再到远程库把B修改的内容pull到本地库 
+二：跨团队协作
+A将远程库fork一份新的给B
+B到远程库将代码clone到本地库，进行修改，然后push回去(注意:此时只会push到B的远程库，A的远程库没有修改)
+B向A发出pullRequest请求，希望将修改同步到A远程库，A进行审核然后将B请求的内容merge合并到A远程库
+
+*详细步骤
+①：在本地创建出本地库
+②：github创建出远程库
+③：为远程库的地址设置别名(远程库地址有两种形式，一种是https的，一种是ssh的)
+       一般这些地址都很长，我们在git操作不方便，所以我们可以在git上为这些地址设置别名
+       git remote add 别名 原地址名（以后直接操作别名，即是操作原地址名）
+       git remote -v：查看已设置的别名
+④：A将本地库内容push到远程库
+       git push 别名/地址名 分支名
+⑤：B将远程库代码克隆到本地
+       git clone 远程库地址  
+
+idea中将代码存放到github的步骤：	
+一：在IDEA中配置git，配置github
+二：VCS->import into Version control->create git repository:创建git本地仓库
+       VCS->import into Version control->share project on github:提交到github上
+三：已提交的代码发生修改，同步到github的步骤
+      vcs->git->add，vcs->git->commit，vcs->git->push
+
+***常用命令：
+①：创建并切换到新创建的分支下：
+git checkout -b <分支名>
+
+②：将分支合并到主干:
+先切换到主干 git checkout master
+git merge <分支名> （将分支合并到现在所在的主干）
+
+③：删除分支：
+先切换到主干 git checkout master
+git branch -D <分支名>
+
+④：查看git的提交记录：
+git log
+
+⑤：查看git工作区，暂存区的变更情况
+git status
+
+⑥：拉取远程最新的变更到本地，拉取远程仓库的代码
+git fetch，git pull
+
+⑦：将代码还原到某个版本
+git reset --hard 版本号
+
+⑧：最近的git执行命令
+git reflog
+
+⑨：git工作区提交到暂存区，提交到仓库，提交到远程仓库
+git add，git commit -m，git push
+
+⑩：有的时候，本地分支在master分支，然后忘了切其他的分支去修改，直接在master改了，然后也push到远程了。
+等你发现的时候，你会真的想骂自己。
+咋办？最简单的办法其实我们还是可以git reset --hard到对应的版本，然后将其修改或者复原，
+再强制提交到master分支：git push -u origin/master -f
+（我们的代码都是提交到远程仓库的分支里，最后再用master合并分支）
+https://oschina.gitee.io/learn-git-branching/
+
+https://juejin.im/post/6844904177009688584#heading-4

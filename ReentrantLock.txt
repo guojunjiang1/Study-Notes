@@ -1,0 +1,19 @@
+ReentrantLock也是JAVA中解决并发问题的一种方案
+它也是个悲观锁，也是个非公平锁
+ReentrantLock底层是由AQS实现的 （Semaphore也是由AQS实现的，Semaphore是共享锁，ReentrantLock是独占锁）
+
+ReentrantLock实现了lock接口，它的内部类Sync继承了AQS重写了AQS的tryAcquire（尝试获取锁）方法
+			 它还有两个内部类都继承了Sync类，FairSync（公平锁）和NoFairSync（非公平锁），公平锁情况下获取锁时需要额外判断一个条件
+											（队列为空或者队列不为空，头结点不为空并且头结点等于当前线程）
+
+ReentranLock中核心方法（都是重写自AQS，AQS类中这些方法都没有实现，它采用了很经典的模板方法的模式，默认方法的实现都是抛异常，要求子类必须重写方法）：
+
+lock():获取锁：首先会根据创建时构造器的参数，创建非公平锁或公平锁(Sync的子类)，state为0会尝试通过CAS来修改state值，否则会调用acquire()方法
+acquire()(额kuaier):它会调用tryacquire()方法，（return false则会调用）acquireQueued(addWaiter())方法
+tryacquire():尝试抢占锁，判断2个条件：如果当前state为0则尝试CAS修改值获取锁，如果当前线程等于已经获取锁的线程则重入锁成功，两种情况都不是的话获取锁失败
+acquireQueued(addWaiter()):获取锁失败添加到FIFO队列，addWaiter:将当前线程封装成Node节点添加到FIFO队列中，第一次添加的话会初始化队列（队列中的头结点是一个哨兵节点，之后的节点才是我们的Node用户节点）
+					           acquireQueued：在队列中再尝试获取锁，如果还获取不到的话就调用LockSupport.park将线程阻塞掉
+
+unlock():释放锁：调用release()方法
+release()(rui力si):它会调用tryRelease()方法
+tryRelease():将state-1当state为0时设置当前占有锁的线程为null，根据当前是公平锁或非公平锁来决定唤醒队列中的头结点还是所有的结点

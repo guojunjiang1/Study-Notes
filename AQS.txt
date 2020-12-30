@@ -1,0 +1,31 @@
+AQS：抽象的队列同步器，它是所有JUC并发类的基类/规范，lock，latch，barrier，semaphore都是基于AQS实现的（synchronized有自己的实现不依赖于AQS）
+AQS的核心其实就是FIFO双向队列，这个队列就是AQS的抽象表现。	
+
+它的原理：当有线程来访问共享资源（锁），此时共享资源为空闲状态，CAS获取成功，那么就将该线程设为工作线程，且把资源设为锁定状态
+当有线程来访问，共享资源被占用时，将线程封装成Node节点，并将其存放到内置的FIFO队列中（基于CLH队列实现的虚拟双向队列）然后将其通过LockSupport.park来阻塞掉
+当锁释放后需要LockSupport.unpark唤醒队列中的结点来分配锁。
+
+AQS中的属性：
+state值：一个int类型被volatile修饰的变量，用于存放锁的状态，1表示当前有线程占用锁，0表示锁还是空闲的
+Node节点：包括一个prev:前结点指针，next:后节点指针，Thread:存放当前的线程，waitStatus:Node结点等待的状态（正常等待，中断等待）
+	   Node还包括两个模式，Shared模式表以共享状态等待锁(非公平锁)，EXCLUSIVE模式表以独占状态等待锁(公平锁)
+FIFO队列：FIFO队列其实就是用Node实现的，Node包括了前后指针，FIFO队列只需要加一个头尾指针就可以完全实现了
+
+AQS中的方法：ReentrantLock中有具体的实现
+
+AQS的核心思想：CAS获取锁，用一个int类型的变量state表示当前锁是否被占用+FIFO队列存放阻塞的线程封装成的Node+LockSupport.pork/unpork(封装unsafe类的pork/unpork（阻塞，唤醒）)
+
+LockSupport：
+LockSupport：LockSupport就是用来pork阻塞和unpork唤醒线程的，它底层封装了unsafe类。
+Object也有阻塞和唤醒方法：wait，notiify；它俩必须在synchronized内部使用不然会报错。
+Condition也有阻塞和唤醒方法：await signal；它俩必须在lock内部使用不然会报错。（它俩都是线程必须先获取到锁之后，才能调用阻塞唤醒方法，不然会报错）
+LockSupport的阻塞和唤醒方法：park，unpark；它俩不依赖于锁，无需获取锁就可以执行。
+				            传统意义上我们都是A线程阻塞，B线程来唤醒A线程，但LockSupport则可以打乱顺序，B线程先调用unpark(A线程)，此时A线程中的park代码就相当于无效了
+LockSupport可以打乱唤醒阻塞顺序的原因：
+LockSupport和每一个线程都绑定了一个许可（permit），permit相当于0,1开关，默认是0，当为0时调用park会进入阻塞状态，调用unpark会让permit+1让permit变成1将对应的线程给唤醒。
+				    （pe ruo mite）	                          当先调用unpark，permit变成1，此时再调用park由于permit为1，那么park会消费掉这个1，不会进入阻塞状态。
+注意：unpark无论调用多少次，permit的上限就是1，仅供一次无阻塞的park消费，当先unpark2次，再调用2次park时线程还是会进入阻塞状态。
+
+AQS定义两种资源共享方式：
+独占：分为公平锁和非公平锁
+共享：Semaphore，CountDownLatch，CyclicBarrier，ReadWriteLock

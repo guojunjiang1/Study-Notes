@@ -1,0 +1,42 @@
+ArrayList:JAVA中最常见的集合框架,底层是由数组实现的，他允许元素重复且是有序的，增删慢，查找快
+
+初始的容量为0，扩容机制：先判断是不是第一次调用add方法（if (elementData==emptyArray)），如果是第一次调用add设置容量为10
+如果容量满了则扩容，变为原来的1.5倍（n+(n>>1):>>1表右移一位，相当于除2的1次方）
+
+ArrayList的实现接口：
+①：Serializable:实现了Serializable接口后，可保证List能够持久化到文件中，也可以反持久化出来，在微服务的架构中也可以通过RPC方式在网络中传输。
+②：Cloneable:实现了克隆接口重写clone方法，可实现浅拷贝。
+③：RandomAccess：实现了RandomAccess接口表示该类拥有随机访问列表的功能，RandomAccess 接口只是标识，并不是说 ArrayList 实现 RandomAccess 接口才具有快速随机访问功能的！
+若实现了RandomAccess接口，那么采用随机访问列表遍历（list.get）的效率是高于顺序访问列表(iterator)的。（LinkedList没有实现RandomAccess接口所以使用Iterator遍历的效率高）
+因此在业务中遍历前可以先判断一下(list instanceof RamdomAccess)如果为true则使用随机访问列表来遍历，否则就使用顺序访问列表
+
+ArrayList的并发修改异常：ConcurrentModificationException
+在多线程添加/删除元素或使用Iterator进行遍历的时候如果进行add或set（list.remove,iterator.remove不会出现异常因为调用remove的时候也会增加expectedModCount值）时就会发生
+ConcurrentModificationException异常
+原因：在迭代器遍历时，每次修改后modCount的值都会加1，但是此时expectedModCount还是以前保存的modCount的值，每当迭代器遍历下一个元素之前会进行判断，两者不相等，抛出异常。
+
+ArrayList是线程不安全的：
+解决方法：①使用Vector ②通过工具类Collections.synchronizedList转换为线程安全的③使用CopyOnWriteArrayList（写时复制（执行add方法时，先加锁，然后将原来的数据拷贝一份，在拷贝的数据下添加新数
+据，然后再将拷贝的数据重新覆盖原数据）且它是读写分离的，读的时候不加锁，写的时候加锁，锁就是Synchronized）
+
+快速失败（fail-fast）和安全失败（fail-safe）的区别：
+java.util包下的所有类都是快速失败的，java.util.concurrent下的所有类都是安全失败的
+快速失败：线程不安全的类，在多线程环境下或者单线程下用Iterator遍历时对元素进行修改，会抛出ConcurrentModificationException（遍历时对元素每进行一次修改，modcount的值都+1，到时候
+expectedmodcount和modcount不相等就会抛出异常）
+安全失败：不会抛出该异常，因为他在遍历时不是直接在集合上操作，而是复制原有的内容，在拷贝的集合上进行操作
+
+如何解决ArrayList添加数据频繁扩容所带来的性能瓶颈：
+当数据量很大时，可以在创建ArrayList的时候通过构造函数指定ArrayList的大小
+
+如何把一个ArrayList复制到另一个ArrayList当中：
+①通过clone方法 ②通过构造函数 ③通过addAll方法
+
+ArrayList和LinkedList的区别：
+①：ArrayList底层是动态数组，LinkedList底层是链表
+②：ArrayList带有索引，所以查询效率是高于LinkedList的
+③：一般而言LinkedList的增删效率是高于ArrayList的，但在某些特定场景下ArrayList的效率更高
+④：所占内存大小：当arrayList发生扩容且元素没沾满的时候arrayList所占的内存多，但一般情况下还是链表占用的内存多，因为链表每个结点有前后指针
+Linked在底层执行add和remove：先依次遍历找到对应的数据（耗时），然后修改指针的指向。
+Array在底层执行add和remove：先根据索引找到对应的数据，然后做大量的数据移动（耗时）
+数据量大且增删的数据靠后的时候ArrayList的增删效率是高于LinkedList的（因为ArrayList的arraycopy速度时大于Linked的遍历的）
+ArrayList在堆内存中是连续存储的，LinkedList不是连续存储的

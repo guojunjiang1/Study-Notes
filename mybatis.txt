@@ -1,0 +1,14 @@
+mybatis是半ORM框架，SpringDataJpa是全ORM框架，SpringDataJpa实体类和表中字段一一对应，不需要写sql语句所以是全ORM框架，Mybatis实体类和表中字段在查询后可做映射，需要写sql语句所以是半ORM框架
+
+mybatis的工作流程：
+①：获取配置文件的输入流
+②：创建sqlSessionFactoryBuilder对象
+③：sqlSessionFactoryBuilder.build()创建sqlSessionFactory对象，并将配置文件解析成Configuration对象（Configuration包括了数据库的连接信息，以及用map存放配置文件中的信息）
+④：sqlSessionFactory.openSession()创建sqlSession对象
+⑤：用户通过sqlSession.getMapper（接口.class）来生成代理对象并返回
+⑥：用户调用代理对象的方法，代理对象内部会根据全限定类名+方法名到Configuration的map中找到对应的配置信息（sql语句）进行调用，最终返回结果
+
+mybatis如何在插入数据后获取主键值：xml中useGeneratekeys属性设置为true
+
+Mybatis 都有哪些 Executor 执行器？
+Mybatis有三种不同的执行器：①：SimpleExecutor②：ReuseExecutor③：BatchExecutor

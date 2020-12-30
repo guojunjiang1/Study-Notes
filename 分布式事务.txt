@@ -1,0 +1,43 @@
+分布式事务的产生：在微服务架构下，一个服务调用其他多个服务，无法通过本地事务来控制，只能通过分布式事务的方式保证数据的一致性          
+
+一：基于rabbitmq的分布式事务（最终一致性AP）
+①：在数据库中新增任务表，新增一个订单后，新增一条任务，springTask定时扫描任务，扫描到任务后，为防止集群下多个SpringTask扫描到同一
+任务，使用乐观锁保证只有一个SpringTask可以发送消息，向rabbitmq发送消息，扣减库存微服务，增加积分微服务（这俩微服务监听同一routingkey）。
+②：扣减库存微服务接收消息，积分微服务接收到消息，为确保幂等性，先去判断扣减库存日志中该条消息是否存在，执行扣减库存/添加积分成功后，并向日志中插入一条消息，向订单微服务，发送一条执行成功的消息。
+③：订单微服务接收到成功的消息后，找到对应的任务记录将执行成功的微服务所对应的字段改为成功，当所有的微服务都为成功时，删除任务记录（代表分布式事务执行成功）
+			        （eg：库存微服务执行成功，将sql记录的库存字段改为成功，积分微服务执行成功，将sql记录的积分字段改为成功，判断一下这些被调用的微服务是否都执行成功，成功就删除任务记录）
+AP，追求最终一致性，若中间有程序宕机或消息丢失，任务没完成数据库任务就不会删除，那么SpringTask每隔1分钟扫描一次，保证最终任务一定可以完成
+在SpringTask集群环境下，如何保证扫描到的任务只发送一次，可以在任务发送前使用乐观锁，新增version字段，保证多个SpringTask
+同时扫描到，但最终只有一个SpringTask可以发出任务。
+
+二：基于rabbitmq的分布式事务（最终一致性AP）
+对于重要的业务一旦发生异常，则全部通过mq做回滚，对于不重要的业务可以为其设置一个降级方法，在降级方法中用mq对其单独补偿，不影响主业务的正常执行
+
+三：可靠消息一致性方案（强一致性CP）
+依赖于RocketMQ的事务消息
+①：发送消息到MQ，状态为prepared（预备状态，消息接收方接收不到该消息）
+②：执行本地事务
+③：执行成功，将消息改为commit状态：消息接收方接收到消息，执行本地事务，如果执行失败，则RocketMQ有重试机制，会不断重试直到成功为止
+④：执行失败，将消息改为rollback状态：丢弃消息
+
+四：基于TCC方式的分布式事务（强一致性CP）
+分为两阶段提交：第一阶段预留（try），新增一个frozen字段，扣减库存时，先在frozen字段新增要扣减的库存
+	          第二阶段回滚/提交（cancel/confirm）：当所有分支都执行成功，则正式扣减库存，清空frozen字段，若分支有的失败，则直接清空frozen字段
+TCC性能要比2pc（两阶段提交）高，但是TCC会侵入我们的代码，使用TCC需要额外编写3个方法，try方法，confirm方法和cancel方法
+
+五：基于AT方式的分布式事务（强一致性CP）
+通过SpringCloudAlibaba的seata来实现，seata是由AOP动态代理实现，seata提供了很多种模式：AT,TCC,SAGA（有一个步骤失败了，补偿前面成功的步骤）,XA
+
+Seata由3+1组件组成，1指的是全局唯一的事务ID：XID,3指的是事务的协调者TC，事务管理器TM，资源管理器RM
+TC可以是Seata的服务器，TM为事务的发起方（订单），RM为涉及到的微服务（库存，余额）
+①：TM向TC发出开启分布式事务的申请，生成XID（xid组成：seata所在机器的ip+端口+：10位的整数）
+②：RM向TC进行注册分支事务
+③：TM向TC发起针对XID的全局提交或回滚
+④：TC协调完成全局事务的提交回滚
+
+分为两阶段提交：第一阶段加载，添加行锁然后修改字段，但要记录beforeimage日志和afterimage日志（这两个日志记录有点类似于AOP，前置日志，后置日志）和undo_log日志（各个分支下的日志）
+	          第二阶段回滚/提交：若执行成功，将会异步的，清空seata数据库日志和各个分支下的数据库日志,beforeimage和afterimage和行锁
+			          若回滚，则按照beforeimage和afterimage日志对数据做补偿，还原到执行业务之前的数据，然后清空seata数据库日志和各个分支下的数据库日志。
+AT模式默认的隔离级别是读未提交，通过SELECT FOR UPDATE 来进行读已提交的隔离。
+
+https://mp.weixin.qq.com/s?__biz=Mzg2OTA0Njk0OA==&mid=2247493157&idx=2&sn=10c022973879ac1363cb5ec7d8f5e02a&chksm=cea1a9eef9d620f8a0f8807aba3264aff79f930025f753aea6beca00e5a5231d9e29d9561fe9&scene=126&sessionid=1601821091&key=1ab88c7c38688598f255f25ce0dc7d681dcd1f50be6898286be9d57fdbc34deb0488076f87cdd577b119e6b49b339f6087670619e4bba4b3a9301156d3d5daae11a0b26006597cedbdf4ae4920874e12de7c2558f442671d4d67d64044c7be0ac756269835606f17faaa842c0b163c0ed1bc9139120f6302c6405552c41a546e&ascene=1&uin=MjI1MzU3OTk2Mg%3D%3D&devicetype=Windows+10+x64&version=62090529&lang=zh_CN&exportkey=AUdXLCzO08ckhI%2Bi2Cj6glY%3D&pass_ticket=GcceUn44B0Yv1REWqtp3B%2BQQwYV0hMP4boM9VwLM5B5d6MQ55dXy0FnpXBkA8bfr&wx_header=0

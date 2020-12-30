@@ -1,0 +1,9 @@
+SpringDataJpa：传递一个PageAble对象即可：Pageable=PageRequest.of（页数，记录数）（页数从0开始）
+Mybatis:导入分页插件的pom：
+         <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pageHelper.starter.version}</version>
+         </dependency>
+Service层在查询前添加PageHelper.startPage(page,rows);（页数从1开始）
+查询完成后可把List封装到PageInfo<Brand> pageInfo=new PageInfo<>(list);分页对象中

@@ -1,0 +1,2 @@
+序列化就是实现Serializable接口，指定一个SerialzableId（否则它会自动生成）static final long serialVersionUID
+实现序列化后，可将对象持久化到文件中，再反持久化到程序中，且在微服务架构中可以网络传输

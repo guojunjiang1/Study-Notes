@@ -1,0 +1,7 @@
+concurrentHashMap
+CopyOnwriteArraySet
+CopyOnwriteArrayList：写时复制，在进行修改添加操作时，先添加lock锁，然后复制一份新的数组出来，在新的数组上做操作，
+		      最后将引用指向新数组
+		      缺点：耗费内存，每次set/add方法都会复制一个新数组出来
+			只能保证数据的最终一致性，不能保证数据的实时一致性	
+读写分离，读时不加锁，写时加锁

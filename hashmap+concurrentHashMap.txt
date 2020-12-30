@@ -1,0 +1,70 @@
+hashmap是JAVA中的一个集合框架通过key value的方式存储数据，最大容量为：1<<30 2的30次方
+jdk1.8后他的底层是由数组+链表+红黑树组成的
+数组初始长度是0，第一次调用put时长度扩容为16，必须重写Key对象的HashCode和Equals方法。
+
+数组大小：当通过构造函数指定数组大小时，系统会自动将该值转化为一个>=他的2的N次方的数，原因：为了方便计算索引值hash&（length-1），防止出现数组越界，减少hash冲突，让数据散列的更均匀。
+eg：通过构造函数指定数组长度为13，则系统转化为16，length-1为15（二进制数为：1111）可以方便的进行&hash，得到的结果就是0-(length-1)。 （为了系统&操作的方便）
+
+存储过程：通过Key的hash（hash是由hashcode右移16位再异或（两个数不同为1）hashcode计算出来的）&(与，两个都为1时为1)数组长度-1来求出存储元素在数组中的索引，
+（hashcode高16位与低16位进行异或运算计算出hash值，因为大部分情况下数组长度有限，为了让hashcode的高16位也参与到运算当中，所以采用这种方法计算出hash值然后，
+通过hash&length-1，来计算出索引的位置，length是2的N次方数，该数-1得到的数的二进制就都是11111类型，然后&hash后得到的结果必然在0——length-1之间）
+若该索引没有元素则直接存放即可，若有元素，则比较hash，若hash相同，（hash相同equlas不一定相同，hash不同equlas不同）则通过equlas方法来比较key，若有相同的则覆盖，
+若没有相同的则使用尾插法来存放到链表当中（jdk1.8之前是头插法，头插法会导致在扩容时出现两个节点的相互引用造成死链，1.8之后就是尾插法）。
+
+hashmap的put：一：判断是否是第一次调用put方法然后进行初始化
+(会调用putval)    二：计算出所在位置判断是否存在元素，不存在直接存放
+	          三：此时发生了Hash冲突，判断散列表长度是否达到阈值且发生了Hash冲突，则进行扩容
+	          四：通过hash equals比较是否相同，相同则进行value的覆盖
+	          五：判断是否是红黑树，如果是则插入树中
+	          六：判断是否有链表，若有则依次比较，没有相同元素则尾插法插入
+	          七：判断是否链表达到8，若散列表长度也达到了64则进行转换为红黑树，否则进行扩容
+
+数据转换：当链表长度达到8（根据泊松分布公式决定）且hashmap的数组长度大于64时（否则优先扩容）进行数据转化，将链表转为红黑树，当红黑树大小又变为6时，又回退到链表结构，
+红黑树所占节点大小约为链表结点的2倍，故一开始是链表结构。当元素足够多时才会转为链表（当长度达到8时链表平均查找长度为4，时间复杂度O（n），红黑树平均查找长度为3，时间复杂度O（logn））
+
+hashmap的默认负载因子（loadFactor）是0.75（泊松公式推导出来的）（决定多会儿扩容）为了让散列更均匀，负载因子越大（扩容越慢），空间利用率越高但发生Hash冲突的概率则越高，负载因子越小，发生Hash冲突的概率就低了，
+但空间利用率低。（为了扩容机制减少Hash冲突还保证利用率）
+
+扩容机制（resize）：数组已存储元素达到临界值（数组总长度*0.75）且这次添加数据发生了Hash冲突时扩容，大小左移一位变为原来的2倍。
+	 	每次扩容后都要rehash（重新计算Hash值，因为数组长度变了，索引位置也要改变）
+
+hashMap的继承、实现关系：实现了serializable接口，cloneable接口  继承了AbstractMap抽象类
+
+必须重写hashcode和equlas吗？
+是的，必须重写，自定义对象我们为了让其语义上相等，eg：年龄姓名相同的就认为是一个对象，我们就需要重写equals，equlas相等则hashcode必然相同，所以要重写hashcode（hashcode相同，equlas不一定相同）
+	           在put，get时，也需要hashcode来找到索引位置，equlas来比较对象是否相同。
+
+hashmap在并发会产生的问题：
+1.7时，在扩容时多线程进行访问会造成死锁，形成一个环（头插法，1.8就解决了）
+并发put时会发生数据覆盖导致数据丢失，put后get拿不到数据
+
+concurrentHashMap保证了并发场景下的线程安全（现实环境用作本地缓存）
+jdk1.7：采用的是segment+HashEntry的方式实现的 ，每个segment对象守护着一个HashEntry数组，每个HashEntry又是一个链表结构（和hashmap一样）
+segment是分段锁，多个线程访问时可以同时访问不同的segment从而提高并发效率，默认支持的最大并发量是16（因为最多有16个segment）。
+segment继承自lock锁，所以保证了每个segment都是线程安全的，因为多个线程访问多个segment所以也就实现了全局的线程安全。（底层也是segment数组+链表）
+当put，get数据时，通过key的hash值找到对应的segment，再通过hash计算出HashEntry中的下标。
+
+jdk1.8：对concurrentHashMap对象进行了重构，放弃了segment对象，由Node+synchronized+cas自旋锁组成（底层也是数组+链表+红黑树）
+            通过synchronized对桶内的头结点进行加锁来保证线程安全，如果桶内头结点还不存在时，通过cas自旋的方式来添加头结点，添加好头结点后会使用synchronized保证线程安全
+
+ConcurrentHashMap和HashMap的区别：
+
+concurrentHashMap的寻址方式和HashMap是一样的，都是先算出hash值然后通过(table.length-1)&hash来计算出索引位置
+ConcurrentHashMap是线程安全的，只不过它在存储数据时，通过hash先定位到某一个segment上面加锁，后序的操作和hashMap是一样的。
+在取出数据时，通过key的hash%16定位到segment上，然后取出即可不需要加锁
+
+concurrentHashMap为什么取代了HashTable：
+HashTable是在每个方法上都加锁，效率低下，concureentHashMap可以实现分段锁，且它在读时不加锁
+
+concurrentHashMap可以指定负载因子吗？
+是不可以的，concurrentHashMap的负载因子是被final修饰的，值是0.75
+
+hashmap中通过size来保存字段长度，concurrentHashMap中通过一个LongAddr的引用来保存字段长度
+hashmap允许key为null，concurrentHashMap和HashTable不允许key为null
+
+concurrentHashMap和CopyOnWriteArrayList和CopyOnWriteArraySet都是线程安全的，且它们还是读写分离的，读时不加锁，写时才加锁
+
+如果让一个Person类当key存放到map中，如果存放进去后修改了Person中name的值，根据修改后的Person对象可以在map中get到value吗？
+这就要判断equlas和hashCode是怎么重写的了，如果重写的hashCode中与name无关，则可以定位到数组中所在的位置
+				         如果重写的equals中与name无关，则可以取出value
+

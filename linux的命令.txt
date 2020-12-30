@@ -1,0 +1,25 @@
+查看整机性能：Top 按一下数字键盘的1 可以查看id （ cpu空闲率越大越好）和loadaverage（系统负载率越小越好）
+	       也可以用Top命令来排查问题，定位到CPU利用率使用高的代码
+查看整机性能：uptime只能查看loadaverage（系统负载率越小越好）
+查看内存性能：free -m
+查看硬盘性能：df -h
+查看IO情况：iostat -xdk
+查看cpu情况：vmstat -n
+查看日志：tail -f 文件名
+
+查看进程：ps-ef|grep xxx（grep xxx，过滤掉不带xxx的进程）
+查看目录：ls/ll
+创建文件夹：mkdir
+移动文件：mv
+拷贝文件：cp
+编辑文件：vi/vim :wq保存并退出 :!q/ctrl+c不保存退出 shift+g跳至当前文本最后一行
+日志分析：grep -r '关键字如商品Id' *.log >>anan.txt(将日志输出到一个txt中，下载到本地查看)
+
+Systemctl start 服务名：开启服务
+Systemctl restart 服务名：重启服务
+Systemctl stop 服务名：关闭服务
+Systemctl reload 服务名：加载服务
+
+fork：创建一个和当前进程一模一样的子进程（相当于创建一个副本）
+exec：装载一个新的程序覆盖当前进程内存空间的映像，从而执行不同的任务
+          （进程A打印Hello，fork出的子进程B也打印Hello，子进程B执行了exec后，B就可以不用打印Hello，去做自己想做的事了）

@@ -1,0 +1,7 @@
+servlet是指实现了HttpServlet接口重写了doget，dopost，service方法的类，用来接收请求并响应数据。
+servlet的生命周期：①servlet由servletContiner容器来进行管理
+	              ②在Continer容器创建时，调用servlet的init方法完成初始化
+	              ③当有请求时，为每个请求分配一个线程并调用service方法
+	              ④当Continer容器关闭时，调用destory方法销毁servlet
+servlet3.0的新特性：可以采用@WebServlet/Filter/Listener注解来代替web.xml中对三大组件的配置
+		可以采用spi的方式来注册三大组件，spi：基于接口编程+配置文件+策略模式组合实现动态加载机制

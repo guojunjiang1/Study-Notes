@@ -1,0 +1,7 @@
+oom：out of memory内存溢出
+一：stack over flow：栈溢出 常见于递归调用导致
+二：java heap space：堆溢出 出现内存泄漏等Bug时会导致堆溢出
+三：GC overhead limit：GC时间过长 98%的时间都用来做GC且回收的垃圾不到2%时抛出该异常
+四：metespace：元空间溢出 （元空间存放的信息有：JVM虚拟机加载的类信息，即使编译后的代码，常量池，静态变量）
+五：unable to create new native thread：无法新建线程 新建的线程达到了最大线程数
+六：Direct buffer memory：本地内存溢出 常见于NIO编程当中，NIO使用allocafeDirect方法时所占的内存在本地

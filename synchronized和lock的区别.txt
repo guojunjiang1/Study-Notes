@@ -1,0 +1,14 @@
+一：synchronized是jdk级别的关键字，lock是一个Api
+二：synchronized是非公平锁，lock默认是非公平锁，lock可以通过构造函数传递true，创建出公平锁
+三：synchronized无需手动释放锁，lock需要手动释放锁
+四：lock中有condition，synchronized没有condition
+五：synchronized等待不可中断，lock可中断
+（lock.lock来加锁也是不可中断的，lock.lnterruptibly()的方式来加锁是可中断的
+不可中断：线程A获取锁，线程B也来获取锁，此时线程B就处于阻塞等待状态，A不释放锁B就一直处于等待状态，在等待过程中是不可中断的
+用thread.interrupt()方法也无法中断一个在等待中的线程。
+六：Synchronized无法判断是否获取到锁，lock可以判断是否获取到锁（lock.trylock()方法有返回值）
+七：Synchronized能锁住方法和代码块，lock只能锁代码块
+八：Synchronized是基于Monitor实现，lock是基于AQS实现
+
+根据不同的场景去选择不同的锁：
+eg：滴滴打车，使用synchronized时，在高峰期所有的锁都升级成了重量级锁，锁升级后是不可逆的，当在低峰期时性能就不好了，都是重量级锁

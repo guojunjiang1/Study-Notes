@@ -1,0 +1,119 @@
+Spring包括了IOC和AOP，IOC的主要功能是依赖注入和控制反转，AOP就是面向切面编程
+IOC:依赖注入：可以通过Set方法、注解或构造器的形式在新建一个类时注入一些数据
+       控制反转：将创建类的步骤交给spring去处理，将类存入到Spring的容器当中，将来底层通过反射+工厂模式来实例对象
+
+IOCBean的加载过程：
+①：首先加载配置文件（可以是xml或者是java配置类），Spring使用BeanDefinitionReader去处理这些配置信息，xml的话有一个XmlBeanDefinitionReader去处理
+②：读取完配置文件后，通过BeanDefintionParser获取Class路径，将bean封装成BeanDefinition后就放入beanDefinltionMap中（也是个hashmap，专门用来存放bean信息的，Key为beanid，value为class路径）
+③：对bean做初始化：通过DefaultListableBeanFactory的getBean()方法去初始化，实际由AbstractAutowireCapableBeanFactory的doCreateBean（）去完成。
+
+Bean的生命周期：
+①Spring容器从XML中读取bean的定义，实例化bean（加载容器且读取bean在底层对应的方法是：refresh方法）
+②如果bean实现了BeanNameAware接口，Spring传递bean的Id到setBeanName
+③如果bean实现了BeanFactoryAware接口，Spring传递beanfactory给setBeanFactory
+④如果bean实现了BeanPostProcessor接口，则会调用前置处理器
+⑤如果bean实现了InitializingBean接口，则会调用afterPropertiesSet方法
+⑥如果bean实现了BeanPostProceesor接口，则会调用后置处理器（如果配置了AOP则将该对象通过AOP生成代理对象）
+⑦此时bean就初始化完毕，将其放入单例池中，这样就可以在程序中可以使用了，直到spring结束调用它的distroy方法
+
+Spring中BeanFactory和ApplicationContext有什么区别？（这俩都是Spring容器,用于管理bean的）
+ApplicationContext是BeanFactory的子类
+BeanFactory无法满足不断更新的Spring的需求，于是ApplicationContext就基本上代替了BeanFactory的工作并在此基础上进行了扩展
+区别：ApplicationContext的方法一次性可以获取多个bean，BeanFactory的方法一次只会获取单个bean
+
+BeanFactory和FatoryBean的区别：
+BeanFactory是Bean的工厂（容器），ApplicationContext的父类，负责生产管理bean对象的
+FactoryBean是工厂Bean，它不是一个普通的bean对象，当一个类实现FactoryBean接口后可以对bean进行改造。（通过重写FactoryBean中的getObject()方法）
+
+Spring中Bean的作用域：
+Singleton（单例只会实例化一个Bean），prototype（原型：每次调用都会实例化一个bean），request（每次请求过来都会实例化一个bean，该bean仅在当前http request有效）
+session（每次请求都会实例化一个bean，同一个session下共享同一个bean），globalSession（同一个全局session共享一个bean）
+单例情况下如何保证线程安全：若单例对象中的方法操作的都是局部变量那么是不会有线程安全问题的，如果操作了全局变量就会有线程安全问题
+①：可以使用ThreadLocal来保证（将需要用到的成员变量存放到ThreadLocal中） ②：添加@scope（"prototype"）注解设置为prototype多例保证每次来都新建一个对象③：添加锁
+
+一：Spring中事务分为：声明式事务（xml配置或者注解配置），编程式事务（在代码中硬编码，不推荐使用）
+二：Spring的事务传播行为： A方法开启了事务，B方法在A方法中被调用，那么B方法采用哪个事务
+REQUIRED（默认，B和A使用同一事务） REQUIREDS_NEWS（B方法开启一个新的事务）
+三：@Transactional(rollbackFor = Exception.class)注解了解吗？： 我们知道类或方法标注了Transactional注解后，代码发生error或runtimeException运行时的异常会进行回滚	
+										               当配置了rollbackFor=Exception.class后发生Exception异常（编译时异常）也会回滚
+      @Transactional标注类，则该类下所有方法都被Transactional标注，如果@Transactional标注方法，则该方法被Transactional标注。方法上的Transactional会覆盖掉类上的Transactional的配置
+四：使用JPA时如何让实体类中的属性不自动存储到数据库中？在属性上添加@Transient注解/属性用transient修饰（transient String transient3）
+ 
+Spring中自动装配的方式有哪些？
+一：byName：根据Bean的id进行自动装配
+二：byType：根据Bean的类型进行自动装配
+三：构造器：类似于byType如果容器中有一个bean的类型和构造器中参数的类型相同则可以自动装配
+
+Spring的循环依赖问题：
+问题的产生：A类中注入（依赖）了B类，B类中注入（依赖）了A类，Spring容器加载A，加载时需要B，去单例池中寻找发现不在则去加载B
+							去加载B时，又用到了A，去单例池中寻找发现找不到A，于是又加载A，就形成了死循环了
+终极解决方法：Spring对于Singleton类型的bean采用三级缓存+四大方法来解决
+添加三级缓存后的流程：①：去初始化A的时候用到了B，去一级缓存（单例池）中寻找B，发现不存在，于是将A放到三级缓存中，去初始化B
+		     ②：初始化B的时候发现用到了A，于是B去一级缓存查A，不存在去二级缓存中查A，不存在去三级缓存中查A，找到了A，将三级缓存的A清除并放到二级缓存中
+												        （如果A被Aop装配，则就获取被AOP装配后的对象）
+		     ③：B初始化完成，将自己放到一级缓存中（此时B中的A还在二级缓存），于是回来继续初始化A，去一级缓存中获取到B，完成初始化并将A也放到一级缓存中
+三级缓存：3个map（key就是bean的id，value就是bean的Class全路径）
+一级：SingletonObjects(concurrentHashMap)(单例池)：存放完全初始化的bean
+二级：earlySingletonObjects(HashMap)：存放已实例化但尚未被属性装配的bean（aop代理前的bean）
+三级：singletonFactories(HashMap)：存放实例化完成的bean工厂
+对象在三级缓存中由高到低不断升级成一级缓存。
+底层调用的四大方法：
+getSingleton：在单例池中获取对象
+doCreateBean：单例池中不存在，则创建对象
+populateBean：填充（初始化）对象
+addSingleton：将对象存放到单例池中
+
+能不能只用二级缓存而不使用三级缓存来解决循环依赖？
+使用二级缓存确实可以解决循环依赖，但有个前提条件就是我们的bean没有被AOP所装配，一旦bean被AOP所装配的话如果使用二级缓存，那么注入到其他bean中的对象的是原始的，不是被AOP装配后的对象
+												               （如果A被AOP代理，使用二级缓存的话，B中的A就是代理前的A）
+*不要使用构造器注入，使用set方法注入(因为Spring对构造器的装载和解决循环依赖的逻辑是分离开的)，对于Singleton的bean是可以自动解决循环依赖的，对于prototype的bean是不会自动解决循环依赖问题
+的，所以要使用singleton。
+*实例化:在内存中申请一个空间，初始化:将对象给创建出来并填充好他的各种属性
+
+Spring 框架中用到了哪些设计模式？
+工厂设计模式 : Spring使用工厂模式通过 BeanFactory、ApplicationContext 创建 bean 对象。
+代理设计模式 : Spring AOP 功能的实现。
+单例设计模式 : Spring 中的 Bean 默认都是单例的。
+模板方法模式 : Spring 中 jdbcTemplate、hibernateTemplate 等以 Template 结尾的对数据库操作的类，它们就使用到了模板模式。模板模式就是将方法都强制抛出异常，让子类必须重写方法。
+包装器设计模式 : 我们的项目需要连接多个数据库，而且不同的客户在每次访问中根据需要会去访问不同的数据库。这种模式让我们可以根据客户的需求能够动态切换不同的数据源。
+观察者模式: Spring 事件驱动模型就是观察者模式很经典的一个应用。
+适配器模式 :Spring AOP 的增强或通知(Advice)使用到了适配器模式、spring MVC 中也是用到了适配器模式适配Controller。
+
+SpringAop的一些概念：
+连接点：被代理的类中所有方法都是连接点
+切入点：被增强的方法就是切入点
+通知：通知就是指拦截到方法后要做的事情
+目标对象：被代理的对象
+代理：一个类被代理后生成的类
+@Aspect：指定当前类为AOP切面类
+@Pointcut(execution(xx))：指定目标对象，哪些类要被动态代理
+@Before():前置方法，原方法执行前执行
+@AfterReturning：返回后方法，原方法执行后没错误执行
+@AfterThrowing：异常方法：原方法发送异常后执行
+@After:最终方法：相当于finally
+@Around：环绕通知：自定义各种方法
+SpringAop是通过动态代理来实现的，有JDK代理和Cglib代理两种方式，JDK是基于接口的（默认）Cglib用于对没有接口的类产生代理对象，Cglib不能代理final修饰的类和方法
+单例模式下推荐Cglib，多例则是JDK（因为Cglib创建对象的速度慢，运行的速度快，JDK创建对象的速度快，运行的速度慢）动态代理底层也是反射实现的
+
+SpringAop和AspectJAop的区别：
+SpringAop属于运行时增强（因为它是基于动态代理），AspectJ属于编译时增强（AspectJ是基于字节码操作）。
+当切面多时（切面：在什么时候，加强哪些类）选择AspectJ，切面少时两者差异不大
+不过SpringAop已经集成了AspectJ。
+
+SpringAop的执行顺序：（配置了前置，返回后（@AfterReturning），最终（@After），异常）
+Spring4：
+正常情况：前置，方法的执行，最终，返回后。
+异常情况：前置，方法的执行，最终，异常。
+Spring5：
+正常情况：前置，方法的执行，返回后，最终。
+异常情况：前置，方法的执行，异常，最终。
+
+SpringMVC的执行流程
+一：请求达到前端控制器DispatherServlet
+二：前端控制器请求控制器映射器，根据URL找到对应的控制器执行链，返回给前端控制器
+三：前端控制器请求控制器适配器，控制器适配器生成modelAndView对象，返回给前端控制器
+四：前端控制器到达视图解析器，进行解析视图
+五：渲染视图返回给前端
+
+Spring源码环境的搭建：
+Spring使用gradle管理的，首先需要下载配置gradle，然后JDK的版本也不能太低JDK11就可以，最后可以在gradle中配置一下阿里数据源

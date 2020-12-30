@@ -1,0 +1,24 @@
+ThreadLoal为每个线程提供一个私有局部变量
+原理：
+①：每个Thread对象都对应一个Threadlocals字段，每个ThreadLocals字段都指向一个ThreadlocalMap对象。
+②：ThreadLocalMap是ThreadLocal的内部类，他没有实现map接口，自己实现了map的功能。
+③：这个ThreadLocalMap对象中以ThreadLocal（源码中为this）作为Key,Value是在ThreadLocal中设置的值。
+④：ThreadLocal本身并不存值，值是存放在ThreadLoclMap当中的，可以通过ThreadLocl来作为key从ThreadLocalMap中获取设置的值。
+
+为什么把ThreadLoacl存放到ThreadLocalMap中而不是HashMap中？
+一：ThreadLoaclMap的Key可以指定为特殊类型，如ThreadLocal类型
+二：ThreadLocalMap能解决内存泄漏问题，在每次写数据和读数据时都会清除掉已过期的垃圾数据
+
+ThreadLocal的内存泄漏问题：
+TheradLocalMap的key是弱引用，value是强引用，因此当线程结束，在垃圾回收时key会被收集清理掉，value则不会被清理掉，这样value不被清理的话就发生了内存泄漏
+所以在调用 set()、get()时会清理掉已过期（key为null）的数据，调用remove() 方法的时候，会清理掉当前Thread对应的数据 。
+使用完 ThreadLocal方法后 最好手动调用remove()方法
+
+ThreadLocal的set方法：底层会去调用ThreadLocalMap，如果不存在，则会先给该线程创建MAP，存在则以ThreadLocal的引用作为key，Value为当前线程在对应的ThreadLocal中设置的值存放到ThreadLocalM
+ap中
+ThreadLocal的get方法：底层会去调用ThreadLocalMap，若Map不存在则会创建并返回初始值（调用initvalValue方法，返回初始值），存在则以当前线程对应的ThreadLocal的引用作为key获取存放的值
+ThreadLocal的remove方法：清除掉当前线程对应的ThreadLocalMap中的Entry（key，value）
+ThreadLocal的initvalValue方法：当前线程没有调用set方法直接调用get方法时会调用initvalValue方法，默认的返回值为null，可以重写该方法修改返回值
+
+ThreadLocalMap中以ThreadLocal的引用作为Key（它重写了hashcode方法），它采用黄金分割数来分割找到存放位置，黄金分割数可以更均匀的分布到Entry中减少Hash冲突，
+发生Hash冲突时采用的是线性探测法来解决（线性探测法：若当前元素有数据，则采用+1寻找下个元素，若找到最后一个还有数据，则从0开始继续找，直到找到元素为空后在该元素进行存储）

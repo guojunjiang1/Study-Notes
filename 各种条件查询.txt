@@ -1,0 +1,55 @@
+一：TKMybatis：Example对象：  （leyou）
+Example example=new Example(Cities.class);
+Example.Criteria criteria = example.createCriteria();
+if(StringUtils.isNotEmpty(key)){
+   criteria.andLike(属性名,key+"%");
+}
+example.setOrderByClause(属性名+" "+(desc?"desc":"asc"));//排序对象
+PageHelper.startPage(page,size);//分页插件
+List<Cities> lists=citiesMapper.selectByExample(example);//查询获取结果
+PageInfo<Cities> pageInfo=new PageInfo<>(lists);//封装成分页对象
+
+二：SpringDataJpa：继承JpaRepository接口（xc_edu）
+CmsPage cmsPage=new CmsPage();
+//匹配器
+ExampleMatcher matching = ExampleMatcher.matching();
+        //站点id
+        if (StringUtils.isNotEmpty(queryPageRequest.getSiteId())){
+            cmsPage.setSiteId(queryPageRequest.getSiteId());
+        }
+        //模板id
+        if (StringUtils.isNotEmpty(queryPageRequest.getTemplateId())){
+            cmsPage.setTemplateId(queryPageRequest.getTemplateId());
+        }
+        //别名:模糊查询
+        if (StringUtils.isNotEmpty(queryPageRequest.getPageAliase())){
+            cmsPage.setPageAliase(queryPageRequest.getPageAliase());
+            matching = matching.withMatcher("pageAliase", ExampleMatcher.GenericPropertyMatchers.contains());//设置PageAliase为模糊查询
+        }
+//动态查询对象
+Example<CmsPage> example=Example.of(cmsPage,matching);
+//分页查询对象
+Pageable pageable= PageRequest.of(page, size);
+
+Page<CmsPage> page= cmsPageRepository.findAll(example,pageable);
+
+三：SpringDataJpa：继承Specification接口(十次方)
+Specification<Problem> specification=new Specification<Problem>() {
+            public Predicate toPredicate(Root root, CriteriaQuery criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> predicateList = new ArrayList<>();
+ 	if(id!=null){
+	 	Path<Object> a = root.get("id");
+		Predicate p = cb.like(a.as(String.class), id + "%");	
+		perdicateList.add(p);
+	}
+	if(name!=null){
+	 	Path<Object> a = root.get("name");
+		Predicate p = cb.like(a.as(String.class), name + "%");	
+		perdicateList.add(p);
+	}	
+                return cb.and(predicateList.toArray(new Predicate[predicateList.size()]));
+            }
+        };
+PageAble pageAble =  PageRequest.of(page-1, size);
+Page<Problem> page=problemDao.findAll(specification, pageRequest);
+	
