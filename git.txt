@@ -1,5 +1,6 @@
-分布式的版本管理工具：git
-单点式的版本管理工具：svn
+集中式的版本管理工具：svn（电脑直接和svn中心库做交互，一旦中心库断掉可能就无法再交互了）
+分布式的版本管理工具：git（每台电脑本地有一个本地库，远程有一个中心库，中心库挂了，还可以和本地库做交互）
+
 
 *git可以划分为：本地仓库（本机上的git）和远程仓库（github,gitee或者gitlab）
 *远程仓库：外网(github,gitee)所有人都能看到，内网(gitlab)公司内部使用
@@ -24,7 +25,7 @@
        git config --global user.name 用户名    git config --global user.email  邮箱(系统级别设置方式)
 ③：将工作区代码提交到暂存区
        git add 文件名
-       *添加到暂存区的代码可以撤回，git restore --staged 文件名
+       *添加到暂存区的代码可以撤回，git restore --staged <文件名>
 ④：将暂存区代码提交到本地库
        git commit 文件名（在提交时，需要进入vim编辑器添加提交信息）
        git commit -m "提交信息" 文件名（这样不需要进vim编辑器）
@@ -115,6 +116,21 @@ A再到远程库把B修改的内容pull到本地库
 ⑤：A将B请求的内容合并到远程库：在github上：点击Merge pull request
 ⑥：A将远程库的内容再pull同步到本地库就可以啦
 
+*远程操作的两种方式
+一：通过https和github做交互
+①：获取github上仓库的https，这个https就是原地址名
+②：执行push/pull操作的时候，指定这个https原地址名就可以了
+二：通过ssh和github做交互
+①：进入git，输入cd ~
+②：rm -rf .ssh
+③：ssh -keygen -t rsa -C <github账号>：根据rsa非对称算法生成公钥私钥
+④：将公钥配置到github上，Settings->SSH and GPGkeys
+⑤：这时在执行push/pull操作的时候，指定ssh地址就可以了
+区别：
+通过https的方式和远程库做交互每次都需要填写github账号密码
+通过ssh的方式提前配置好公钥，每次做交互时候直接交互即可无需再次输入账号密码
+*不过win10系统自带了凭据可以记录github的账号密码，因此在win10上对于https的方式输入一次账号密码即可
+
 idea中将代码存放到github的步骤：	
 一：在IDEA中配置git，配置github
 二：VCS->import into Version control->create git repository:创建git本地仓库
@@ -131,6 +147,7 @@ git commit -m "提交信息" <文件名>：将文件添加到本地库，git com
 
 ②：分支命令
 git branch <分支名>：创建分支
+git branch -v：查看已创建的分支
 git checkout <分支名>：切换分支
 git checkout -b <分支名>：创建并切换到新创建的分支下
 git merge <分支名>：当前所在分支合并指定的分支名
@@ -156,8 +173,8 @@ git clone <别名/远程地址名> ：将远程库克隆一份到本地库
 git pull <别名/远程地址名> <远程分支名>：将远程库新增内容拉取到本地库并直接合并
 pull=fetch+merge
 git fetch <别名/远程地址名> <远程分支名>：将远程库新增内容拉取到本地，并创建一个分支
-git checkout <别名/远程分支名>：切换到刚fetch创建的分支，可以查看拉取下来的内容
-git merge <别名/远程分支名>：将fetch拉取下来的内容合并到本地库中
+git checkout <别名/(+)远程分支名>：切换到刚fetch创建的分支，可以查看拉取下来的内容
+git merge <别名/(+)远程分支名>：将fetch拉取下来的内容合并到本地库中
 
 ⑩：有的时候，本地分支在master分支，然后忘了切其他的分支去修改，直接在master改了，然后也push到远程了。
 等你发现的时候，你会真的想骂自己。
