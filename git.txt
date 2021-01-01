@@ -83,7 +83,7 @@ A再到远程库把B修改的内容pull到本地库
 ④：A将本地库内容push到远程库
        git push 别名/地址名 本地分支名
 ⑤：B将远程库代码克隆到本地
-       git clone 远程库地址  
+       git clone 远程库地址  （克隆下来后，自动为远程仓库起了别名：origin）
 ⑥：A邀请B加入到团队中
        A在github的仓库的setting,MangeAccess中输入想要邀请的成员名字，邀请加入即可。
        B在github上点击接受，这样B就加入了A的团队了
@@ -192,6 +192,11 @@ git merge <别名/(+)远程分支名>：将fetch拉取下来的内容合并到�
 对于master分支，只存放稳定的版本，开发时使用dev分支，开发完测试通过后就可以合并到master分支了
 三：远程仓库和本地仓库分支问题
 推送时选择的分支，也已推送到远程仓库的分支（eg：推送guo分支，github也会新出现一个guo分支）
+克隆仓库到本地时，其实就将github上的所有分支都克隆到本地了
+四：如何在不影响本地文件的情况下，删除github上的文件
+git rm -r --cached <文件名>
+git commit -m "信息"
+git push -u <远程仓库地址> <本地分支名>
 
 https://oschina.gitee.io/learn-git-branching/
 
