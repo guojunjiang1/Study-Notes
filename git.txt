@@ -50,7 +50,7 @@ eg:git diff fb3c a.txt（当前工作区中的a.txt和版本为fb3c的a.txt进�
 
 *分支
 分支：可以看做是克隆出一份新的matser，内容一模一样（我们创建出的git默认即是master分支）
-作用：在开发中，可以推进多个版本的开发
+作用：在开发中，可以推进多个版本的开发（A分支解决bug，B分支开发新功能）
           各个分支之间相互独立，某一分支开发失败不会影响其它分支，且分支修改内容其它分支是感知不到的
           分支开发成功后，合并到matser主分支即可。
 命令：git branch 分支名：创建分支
@@ -160,6 +160,7 @@ git log --pretty=oneline
 
 ④：版本的回退/前进
 git reset --hard <版本号>:回退/前进到指定版本
+git restore 文件名：撤销这次删除操作
 
 ⑤：查看git工作区，暂存区的变更情况
 git status
@@ -181,6 +182,17 @@ git merge <别名/(+)远程分支名>：将fetch拉取下来的内容合并到�
 咋办？最简单的办法其实我们还是可以git reset --hard到对应的版本，然后将其修改或者复原，
 再强制提交到master分支：git push -u origin/master -f
 （我们的代码都是提交到远程仓库的分支里，最后再用master合并分支）
+
+场景：
+一：修复bug和开发的场景
+线上跑的是master分支的代码，这时有了新需求要添加功能，于是乎创建出一个A分支来添加功能，线上又出现了BUG，于是乎创建出一个B分支来
+修复BUG，最终master分支合并B分支解决BUG，master分支合并A分支添加功能。
+（分支的应用：可以同时推进多个任务）
+二：git工作流规范
+对于master分支，只存放稳定的版本，开发时使用dev分支，开发完测试通过后就可以合并到master分支了
+三：远程仓库和本地仓库分支问题
+推送时选择的分支，也已推送到远程仓库的分支（eg：推送guo分支，github也会新出现一个guo分支）
+
 https://oschina.gitee.io/learn-git-branching/
 
 https://juejin.im/post/6844904177009688584#heading-4
