@@ -82,18 +82,29 @@ A再到远程库把B修改的内容pull到本地库
        git remote -v：查看已设置的别名
 ④：A将本地库内容push到远程库
        git push 别名/地址名 本地分支名
+       （A是leader，除了master分支外，再推送创建一个dev分支）
 ⑤：B将远程库代码克隆到本地
-       git clone 远程库地址  （克隆下来后，自动为远程仓库起了别名：origin）
-⑥：A邀请B加入到团队中
+       git clone 远程库地址  （克隆下来后，自动为远程仓库起了别名：origin，并且会clone所有分支）
+⑥：A邀请B加入到团队中 / A在github创建一个小组，B在这个小组内，项目也是在小组下建立的
        A在github的仓库的setting,MangeAccess中输入想要邀请的成员名字，邀请加入即可。
        B在github上点击接受，这样B就加入了A的团队了
-⑦：此时B就可以做操作，然后提交到本地库，然后推送到github了
-⑧：A将B修改的内容拉取到本地库
-       一：git pull 远程库别名/地址名 远程库分支名
-       二：git fetch 远程库别名/地址名 远程库分支名+git merge 远程库别名/远程库分支名
-      pull=fetch+merge，pull直接将远程库内容拉取到本地并覆盖本地内容
-      fetch：将远程库内容拉取到本地，merge：将远程库内容合并到本地库
-      可以在本地库checkout 远程库别名/远程库分支名，来查看远程库拉取下来的内容
+⑦：此时B就可以做操作，B基于dev分支创建分支guo，进行操作，然后提交到本地库，然后推送到github了
+⑧：A就可以对B提交的分支做review（检查合并）了
+      有两种review方法：
+      一：B在远程库向A发出pull request（指定从guo分支合并到dev分支），A对内容进行检查，然后可以执行合并
+             >A将合并后的最新内容拉取到本地库
+               git pull 远程库别名/地址名 远程库分支名
+               git fetch 远程库别名/地址名 远程库分支名+git merge 远程库别名/远程库分支名
+               pull=fetch+merge，pull直接将远程库内容拉取到本地并覆盖本地内容
+               fetch：将远程库内容拉取到本地，merge：将远程库内容合并到本地库
+               可以在本地库checkout 远程库别名/远程库分支名，来查看远程库拉取下来的内容
+      二：A在本地创建guo分支(因为在pull分支时，会将远程库要pull的分支内容，覆盖本地库当前所在分支，所以我们在pullguo分支时
+      需要先在本地库，创建并切换到guo分支)，将远程库B提交的guo分支pull下来，进行检查，然后切到dev后merge了guo分支，推送到远程库
+⑨：对dev分支进行测试
+       一般在上线前，需要测试团队C对新开发的内容再进行测试
+      C将远程库clone下来，基于dev分支创建release分支，进行测试
+       测试通过后，和之前一样可以在github上发出pullrelease合并，或者直接切换到master分支合并release推送到远程
+⑩：这时master就又有正式版本了，我们就可以创建tag标签，然后推送到远程，生成正式版本
 
 *本地库与远程库的冲突
 问题的产生：
@@ -131,7 +142,41 @@ A再到远程库把B修改的内容pull到本地库
 通过ssh的方式提前配置好公钥，每次做交互时候直接交互即可无需再次输入账号密码
 *不过win10系统自带了凭据可以记录github的账号密码，因此在win10上对于https的方式输入一次账号密码即可
 
-idea中将代码存放到github的步骤：	
+*进阶
+>rebase：使提交记录变简洁
+功能：
+一：将多个提交记录整合成一个记录
+有时我们可能写完一些代码，就提交到本地，但从宏观角度来说，可以把多次小的提交记录，合并成一次大的提交记录。
+命令：git rebase -i HEAD~N（表示合并当前所在版本及其前n-1个版本）
+          执行完命令后进入一个vim界面，这个界面用于设置版本合并的规则，将pick改为s表示合并到一起
+          :wq后还会进入一个vim界面，这个界面用于设置合并后的提交信息
+注意：尽量不要合并已经提交到远程库的版本记录（不然会导致本地库和远程库版本记录不一样，出现冲突）
+二：在合并分支时，让分支记录和主支记录变得简洁
+只需在切到主支合并前，在分支执行git rebase <主支名>即可。
+三：在执行pull时，我们知道可以执行fetch+merge的命令来代替pull，但它会让提交记录中出现分叉
+因此也可以使用fetch+rebase的命令来代替pull，并避免出现分叉
+命令：git fetch 远程库/别名 远程库分支名，git rebase 远程库/远程库分支名
+
+rebase冲突：
+执行rebase时也会发生冲突，大概率是因为同一文件冲突情况（远程库和本地库文件冲突，分支和分支文件冲突）。
+我们可以先解决了冲突情况，然后执行git rebase --continue（rebase继续执行）
+
+>beyond compare:解决冲突
+它是一个软件，专门用来解决冲突的（当出现文件冲突，手动修改不是很方便，这时候就可以使用beyond compare来解决了）
+使用方法：①：下载bc
+   	 ②：在C:/用户/EasonG丶/.gitconfig中进行配置
+	 ③：执行git config --local mergetool.keepBackup false（设置解决冲突后，不保留源冲突文件）
+                 ④：发生冲突后，执行 git mergetool解决冲突（它会弹出bc界面来，bc界面中可选择上/下一个冲突来解决所有的冲突）
+	 ⑤：解决完冲突后commit一下
+
+>tag 添加标签
+在git log中可以查看版本，但是看到的版本号都是一串hash值，不太友好，因此我们可以为这些版本来添加标签进行标识
+命令：git tag -a <标签名> -m “标签描述”：为当前所在版本添加一个标签
+          git push 远程库名/别名 --tags：将标签推送到远程仓库（远程仓库也可以以标签的形式查看代码）
+eg：写完第一个功能，添加一个标签v1，写完第二个功能，添加标签v2，提交到github后，github可以在Tags中查看所有提交过的
+        标签，并且每个标签都有对应的代码（标签对应当时所在版本的代码），标签的提交与分支提交无关（即可以直接提交标签）。
+
+Idea中将代码存放到github的步骤：	
 一：在IDEA中配置git，配置github
 二：VCS->import into Version control->create git repository:创建git本地仓库
        VCS->import into Version control->share project on github:提交到github上
@@ -157,6 +202,8 @@ git checkout master，git branch -D<分支名>：删除分支
 git log
 git reflog
 git log --pretty=oneline
+git log --graph：图形打印
+git log --graph --pretty=format:"%h %s"
 
 ④：版本的回退/前进
 git reset --hard <版本号>:回退/前进到指定版本
@@ -189,10 +236,12 @@ git merge <别名/(+)远程分支名>：将fetch拉取下来的内容合并到�
 修复BUG，最终master分支合并B分支解决BUG，master分支合并A分支添加功能。
 （分支的应用：可以同时推进多个任务）
 二：git工作流规范
-对于master分支，只存放稳定的版本，开发时使用dev分支，开发完测试通过后就可以合并到master分支了
+对于master分支，只存放稳定的线上版本，项目组长一般会创建一个dev分支，开发的组员再基于dev分支创建新的分支，组员开发完毕，请求将
+代码合并到dev分支，组长在检查通过后将内容合并到dev，会再拉取出一个release分支进行测试，最终没问题会提交到master分支
 三：远程仓库和本地仓库分支问题
-推送时选择的分支，也已推送到远程仓库的分支（eg：推送guo分支，github也会新出现一个guo分支）
+推送时选择的分支，也会推送到远程仓库的分支（eg：推送guo分支，github也会新出现一个guo分支）
 克隆仓库到本地时，其实就将github上的所有分支都克隆到本地了
+在pull时，会将内容pull到本地库当前所在分支，因此需要先对本地库的分支进行切换再pull
 四：如何在不影响本地文件的情况下，删除github上的文件
 git rm -r --cached <文件名>
 git commit -m "信息"
