@@ -246,6 +246,12 @@ git merge <别名/(+)远程分支名>：将fetch拉取下来的内容合并到�
 git rm -r --cached <文件名>
 git commit -m "信息"
 git push -u <远程仓库地址> <本地分支名>
+五：给开源代码做贡献
+fork一份到自己的仓库，clone下来对代码进行修改，在github上发出pullRequests指定从自己的哪个分支合并到作者的哪个分支
+六：配置文件
+①：当前项目配置文件，就在当前项目的.git目录下的config，命令为--local或者什么都不指定，就是配置当前项目的配置文件
+②：全局配置文件，在C:/用户/EasonG丶/.gitconfig，命令中添加--global就是配置全局配置文件
+（当前项目配置文件优先级高，对于同一配置两个配置文件中都有则会以当前项目配置文件为主）
 
 https://oschina.gitee.io/learn-git-branching/
 
