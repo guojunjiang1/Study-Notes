@@ -252,6 +252,14 @@ fork一份到自己的仓库，clone下来对代码进行修改，在github上�
 ①：当前项目配置文件，就在当前项目的.git目录下的config，命令为--local或者什么都不指定，就是配置当前项目的配置文件
 ②：全局配置文件，在C:/用户/EasonG丶/.gitconfig，命令中添加--global就是配置全局配置文件
 （当前项目配置文件优先级高，对于同一配置两个配置文件中都有则会以当前项目配置文件为主）
+七：忽略文件
+gitignore：本地仓库创建.gitignore，在这个文件中配置文件名，让git不再管理这些配置的文件名（项目中的一些配置文件就可以直接忽略掉）
+编写规则：vim .gitignore：
+	①：文件名：表示git忽略这个文件
+	②：*.java：表示git忽略所有以.java结尾的文件
+	③：！*.java：表示git忽略所有不以.java结尾的文件
+	④：文件夹名/：表示git忽略指定文件夹下的所有文件
+* https://github.com/github/gitignore：这里面有各种语言常用的.gitignore文件内容
 
 https://oschina.gitee.io/learn-git-branching/
 
