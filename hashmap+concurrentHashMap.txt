@@ -39,7 +39,7 @@ hashmap在并发会产生的问题：
 并发put时会发生数据覆盖导致数据丢失，put后get拿不到数据
 
 concurrentHashMap保证了并发场景下的线程安全（现实环境用作本地缓存）
-jdk1.7：采用的是segment+HashEntry的方式实现的 ，每个segment对象守护着一个HashEntry数组，每个HashEntry又是一个链表结构（和hashmap一样）
+jdk1.7：采用的是segment+HashEntry的方式实现的 ，每个segment对象守护着一个HashEntry数组，每个HashEntry又是一个数组+链表结构（和hashmap一样）
 segment是分段锁，多个线程访问时可以同时访问不同的segment从而提高并发效率，默认支持的最大并发量是16（因为最多有16个segment）。
 segment继承自lock锁，所以保证了每个segment都是线程安全的，因为多个线程访问多个segment所以也就实现了全局的线程安全。（底层也是segment数组+链表）
 当put，get数据时，通过key的hash值找到对应的segment，再通过hash计算出HashEntry中的下标。
@@ -59,7 +59,7 @@ HashTable是在每个方法上都加锁，效率低下，concureentHashMap可以实现分段锁，且它在
 concurrentHashMap可以指定负载因子吗？
 是不可以的，concurrentHashMap的负载因子是被final修饰的，值是0.75
 
-hashmap中通过size来保存字段长度，concurrentHashMap中通过一个LongAddr的引用来保存字段长度
+hashmap中通过size来保存散列表长度，concurrentHashMap中通过一个LongAddr的引用来保存散列表长度
 hashmap允许key为null，concurrentHashMap和HashTable不允许key为null
 
 concurrentHashMap和CopyOnWriteArrayList和CopyOnWriteArraySet都是线程安全的，且它们还是读写分离的，读时不加锁，写时才加锁
