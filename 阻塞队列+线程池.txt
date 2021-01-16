@@ -58,7 +58,7 @@ shutDown和shutDownNow方法， 调用shutDown方法线程池进入shutdown状态不再接收新的任
 如果是集合，我们可以考虑一下juc包下的集合类。
 如果是数值/对象，我们可以考虑一下atomic包下的类或者用ThreadLocal来存储。
 如果是涉及到线程的重复利用，我们可以考虑一下是否要用线程池。
-如果涉及到对线程的控制（比如一次能使用多少个线程，当前线程触发的条件是否依赖其他线程的结果），我们可以考虑CountDownLatch/Semaphore等等
+如果涉及到对线程的控制（比如一次能使用多少个线程，当前线程触发的条件是否依赖其他线程的结果），我们可以考虑Semaphore/CountDownLatch等等
 如果synchronized无法满足你，我们可以考虑lock包下的类
 
 线程和进程的区别：
