@@ -10,8 +10,9 @@ ThreadLoal为每个线程提供一个私有局部变量
 二：ThreadLocalMap能解决内存泄漏问题，在每次写数据和读数据时都会清除掉已过期的垃圾数据
 
 ThreadLocal的内存泄漏问题：
-TheradLocalMap的key是弱引用，value是强引用，因此当线程结束，在垃圾回收时key会被收集清理掉，value则不会被清理掉，这样value不被清理的话就发生了内存泄漏
-所以在调用 set()、get()时会清理掉已过期（key为null）的数据，调用remove() 方法的时候，会清理掉当前Thread对应的数据 。
+使用完ThreadLocal如果不调用remove方法的话，当前Thread对应的ThreadLocalMap中的Value就会一直存在，直至线程销毁，但是现在一般都使用线程池的方式，线程的生命周期就很长，在这个过程中value
+不被回收就造成了内存泄漏，因此其实内存泄漏与ThrealocalMap的key是不是弱引用关系不大，主要是使用完没调用remove方法导致的。
+在调用 set()、get()时会清理掉已过期（key为null）的数据，调用remove() 方法的时候，会清理掉当前Thread对应的数据 。
 使用完 ThreadLocal方法后 最好手动调用remove()方法
 
 ThreadLocal的set方法：底层会去调用ThreadLocalMap，如果不存在，则会先给该线程创建MAP，存在则以ThreadLocal的引用作为key，Value为当前线程在对应的ThreadLocal中设置的值存放到ThreadLocalM
