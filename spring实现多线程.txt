@@ -16,5 +16,5 @@ qingcheng_seckill下有实例。
 
 三：RabbitMQ多线程
 RabbitMQ的多线程是针对于消息接收方的多线程，可以让消息的接收方同时处理多条消息。
-配置方式：在RabbitMQ的配置类中新增多线程的配置即可
+配置方式：在RabbitMQ的配置类中新增多线程的配置即可，在监听队列出指定配置的bean的名称
 XC_EDU,媒资处理视屏

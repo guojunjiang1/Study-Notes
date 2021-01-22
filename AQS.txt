@@ -15,6 +15,10 @@ AQS中的方法：ReentrantLock中有具体的实现
 
 AQS的核心思想：CAS获取锁，用一个int类型的变量state表示当前锁是否被占用+FIFO队列存放阻塞的线程封装成的Node+LockSupport.pork/unpork(封装unsafe类的pork/unpork（阻塞，唤醒）)
 
+AQS支持两种模式：独占、共享
+独占（资源某一时刻只能被一个线程占用）：lock分为公平锁和非公平锁
+共享（资源某一时刻可以被多个线程占用）：Semaphore，CountDownLatch，CyclicBarrier，ReadWriteLock
+
 LockSupport：
 LockSupport：LockSupport就是用来pork阻塞和unpork唤醒线程的，它底层封装了unsafe类。
 Object也有阻塞和唤醒方法：wait，notiify；它俩必须在synchronized内部使用不然会报错。
@@ -25,7 +29,3 @@ LockSupport可以打乱唤醒阻塞顺序的原因：
 LockSupport和每一个线程都绑定了一个许可（permit），permit相当于0,1开关，默认是0，当为0时调用park会进入阻塞状态，调用unpark会让permit+1让permit变成1将对应的线程给唤醒。
 				    （pe ruo mite）	                          当先调用unpark，permit变成1，此时再调用park由于permit为1，那么park会消费掉这个1，不会进入阻塞状态。
 注意：unpark无论调用多少次，permit的上限就是1，仅供一次无阻塞的park消费，当先unpark2次，再调用2次park时线程还是会进入阻塞状态。
-
-AQS定义两种资源共享方式：
-独占：分为公平锁和非公平锁
-共享：Semaphore，CountDownLatch，CyclicBarrier，ReadWriteLock

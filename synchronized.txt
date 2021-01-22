@@ -28,7 +28,7 @@ MonitorµÄµ×²ã»á´óÁ¿µÄµ÷ÓÃÄÚºËº¯Êý£¬parkºÍunpark£¬»áÔì³ÉÓÃ»§Ì¬ºÍÄÚºËÌ¬µÄ´óÁ¿ÇÐ»»£
 
 SynchronizedµÄÓÅ»¯£¨JDK6Ö®ºó£©
 SynchronizedÓÐ¶àÖÖËøÐÎÌ¬£¬ËøµÄÉý¼¶¹ý³Ì£ºÎÞËø->Æ«ÏòËø->ÇáÁ¿¼¶Ëø->×ÔÐýËø->ÖØÁ¿¼¶Ëø
-SynchronizedµÄËø×´Ì¬´æ·ÅÔÚËø¶ÔÏóµÄ¶ÔÏó²¼¾ÖµÄmarkWordµ±ÖÐ£¬Ò»¸ö¶ÔÏóÔÚÄÚ´æÖÐµÄ²¼¾Ö·ÖÎª£º
+SynchronizedµÄËø×´Ì¬´æ·ÅÔÚËø¶ÔÏóÔÚÄÚ´æÖÐµÄ¶ÔÏó²¼¾ÖµÄmarkWordµ±ÖÐ£¬Ò»¸ö¶ÔÏóÔÚÄÚ´æÖÐµÄ¶ÔÏó²¼¾Ö·ÖÎª£º
 ¢Ù£º¶ÔÏóÍ·£¨markWord£¬KlassPointer£©(µ±¸Ã¶ÔÏóµ±×÷Ëø¶ÔÏóµÄÊ±ºò¾Í»á´æ·ÅËøµÄÐÅÏ¢£¬»¹»á´æ·ÅGCµÄÐÅÏ¢Èç·Ö´úÄêÁäºÍhashcode)£¨KIassPointerÎªClass¶ÔÏóÖ¸Õë£¬Ö¸Ïòµ±Ç°¶ÔÏó¶ÔÓ¦µÄÀà£¬
 ¿ÉÒÔËæÊ±ÖªµÀµ±Ç°¶ÔÏóÊÇÄÄ¸öÀàµÄÊµÀý£©
 ¢Ú£ºÊµÀýÊý¾Ý£¨¶ÔÏóÖÐµÄ¸÷ÖÖ×Ö¶Î°üÀ¨¸¸ÀàµÄ×Ö¶Î£¬Æä´óÐ¡ÓÉ×Ö¶ÎµÄ´óÐ¡¾ö¶¨£¬±ÈÈçbyteºÍbooleanÊÇ1×Ö½Ú£¬shortºÍcharÊÇ2×Ö½Ú£¬intºÍfloatÊÇ4×Ö½Ú£¬longºÍdoubleÊÇ8×Ö½Ú£¬referenceÊÇ4×Ö½Ú£©

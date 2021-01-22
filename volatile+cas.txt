@@ -21,3 +21,7 @@ cas如何确保原子性：cas是一条cpu并发原语。 cas底层是由unsafe类（包含了很多的nativ
 cas的具体实现类：juc包下的原子类：atomicInteger atomicReference
 cas的问题ABA问题：当A准备修改前，B已经修改过了，且又将值给还原了回来，此时A可以修改成功，但这中间是存在问题的，因为他不知道B修改过了
 		解决：新增版本的方式，在每次修改时都校验版本，atomicStampedReference可以解决该问题
+
+阿里巴巴开发手册提到用LongAdder对象比AtomicLong性能更好，原因？
+在多线程环境下，用AtomicLong时，某一时刻内只有一个线程是执行成功的，其它线程将执行失败进入自旋状态(不断重试)，自旋就会成为瓶颈
+LongAdder的思想就是把要操作的目标资源分散到cell数组中，大大降低了失败的次数，比AtomicLong性能好

@@ -12,8 +12,9 @@ lock():获取锁：首先会根据创建时构造器的参数，创建非公平�
 acquire()(额kuaier):它会调用tryacquire()方法，（return false则会调用）acquireQueued(addWaiter())方法
 tryacquire():尝试抢占锁，判断2个条件：如果当前state为0则尝试CAS修改值获取锁，如果当前线程等于已经获取锁的线程则重入锁成功，两种情况都不是的话获取锁失败
 acquireQueued(addWaiter()):获取锁失败添加到FIFO队列，addWaiter:将当前线程封装成Node节点添加到FIFO队列中，第一次添加的话会初始化队列（队列中的头结点是一个哨兵节点，之后的节点才是我们的Node用户节点）
-					           acquireQueued：在队列中再尝试获取锁，如果还获取不到的话就调用LockSupport.park将线程阻塞掉
+					 acquireQueued：在队列中再尝试获取锁，如果还获取不到的话就将当前节点的前驱节点设置标识位(Node中的waitStatus)为Singal(标识后继结点需要被唤醒)
+							      并调用LockSupport.park将线程阻塞掉
 
 unlock():释放锁：调用release()方法
 release()(rui力si):它会调用tryRelease()方法
-tryRelease():将state-1当state为0时设置当前占有锁的线程为null，根据当前是公平锁或非公平锁来决定唤醒队列中的头结点还是所有的结点
+tryRelease():将state-1当state为0时设置当前占有锁的线程为null，然后唤醒队列中的头结点的下一个合法节点，唤醒后会通过CAS将自己设置为头结点，然后去尝试获取锁
