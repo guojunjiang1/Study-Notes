@@ -14,9 +14,10 @@ Springboot：①：起步依赖：将某种功能的坐标打包到一起，也�
 	 @ControllerAdvice。@ExceptionHandler（异常类型.class）用于全局异常处理
 自动配置原理：
 ①：在启动类会添加@SpringBootApplication注解，在项目启动时会扫描到该注解。	
-该注解包括ComponentScan，EnableAutoConfiguration，SpringBootConfiguration（标明该类SpringBoot的朱配置类）
+该注解包括ComponentScan，EnableAutoConfiguration，SpringBootConfiguration（标明该类SpringBoot的主配置类）
 ②：通过EnableAutoConfigurantion实现自动配置
-       它会从类路径下META-INF/spring.factories中获取资源，然后通过properties加载资源，将这些值作为自动配置类导入容器中，这时自动配置就完成了
+       它会从当前类路径下的META-INF/spring.factories中获取配置，将这些配置封装成自动配置类导入容器中，这时自动配置就完成了
+       （通俗来讲，SpringBoot会根据引入的SpringBoot的Jar包中META-INF目录下的Spring.factories(配置了Jar包中的类的全限定类名)文件中的参数来封装成bean放入Spring容器中）
 ③：它还会自动扫描启动类及其子包下的所有组件到容器中
 
 单体架构和分布式和微服务：

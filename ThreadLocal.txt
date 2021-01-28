@@ -1,9 +1,9 @@
 ThreadLoal为每个线程提供一个私有局部变量
 原理：
-①：每个Thread对象都对应一个Threadlocals字段，每个ThreadLocals字段都指向一个ThreadlocalMap对象。
+①：每个Thread对象都对应一个Threadlocals字段，ThreadLocals字段指向了ThreadlocalMap对象。
 ②：ThreadLocalMap是ThreadLocal的内部类，他没有实现map接口，自己实现了map的功能。
 ③：这个ThreadLocalMap对象中以ThreadLocal（源码中为this）作为Key,Value是在ThreadLocal中设置的值。
-④：ThreadLocal本身并不存值，值是存放在ThreadLoclMap当中的，可以通过ThreadLocl来作为key从ThreadLocalMap中获取设置的值。
+④：ThreadLocal本身并不存值，set的值是存放在ThreadLoclMap当中的，可以通过ThreadLocl来作为key从ThreadLocalMap中获取set的值。
 
 为什么把ThreadLoacl存放到ThreadLocalMap中而不是HashMap中？
 一：ThreadLoaclMap的Key可以指定为特殊类型，如ThreadLocal类型
@@ -12,7 +12,7 @@ ThreadLoal为每个线程提供一个私有局部变量
 ThreadLocal的内存泄漏问题：
 使用完ThreadLocal如果不调用remove方法的话，当前Thread对应的ThreadLocalMap中的Value就会一直存在，直至线程销毁，但是现在一般都使用线程池的方式，线程的生命周期就很长，在这个过程中value
 不被回收就造成了内存泄漏，因此其实内存泄漏与ThrealocalMap的key是不是弱引用关系不大，主要是使用完没调用remove方法导致的。
-在调用 set()、get()时会清理掉已过期（key为null）的数据，调用remove() 方法的时候，会清理掉当前Thread对应的数据 。
+在调用 set()、get()时会清理掉已过期（key为null）的数据，调用remove() 方法的时候，会清理掉当前ThreadLoacl对应的数据 。
 使用完 ThreadLocal方法后 最好手动调用remove()方法
 
 ThreadLocal的set方法：底层会去调用ThreadLocalMap，如果不存在，则会先给该线程创建MAP，存在则以ThreadLocal的引用作为key，Value为当前线程在对应的ThreadLocal中设置的值存放到ThreadLocalM
@@ -23,3 +23,17 @@ ThreadLocal的initvalValue方法：当前线程没有调用set方法直接调用get方法时会调用ini
 
 ThreadLocalMap中以ThreadLocal的引用作为Key（它重写了hashcode方法），它采用黄金分割数来分割找到存放位置，黄金分割数可以更均匀的分布到Entry中减少Hash冲突，
 发生Hash冲突时采用的是线性探测法来解决（线性探测法：若当前元素有数据，则采用+1寻找下个元素，若找到最后一个还有数据，则从0开始继续找，直到找到元素为空后在该元素进行存储）
+
+每个线程想拥有多个全局变量怎么办？
+可以创建多个ThreadLocal来实现，每个ThreadLocal存放一个全局变量
+
+为什么建议ThreadLocal定义为static类型？
+因为是由ThreadLocalMap来存放set的数据的，而并非ThreadLocal对象，因此多个线程来访问时，只需要让ThreadLocal初始化一次就够了，没必要初始化多次，所以定义为static类型
+
+ThreadLocal使用场景：一个类中需要使用到全局变量，在不加锁的场景下，可以使用ThreadLocal来存放这个全局变量
+
+ThreadLocal在Spring中的使用场景：(Spring事务）
+事务的作用就是保证一组操作要么同时成功要么同时失败，有个前提条件是一组操作都是在同一个数据库连接上。
+在Spring事务中ThreadLocal保存的类型是一个Map（Key是DataSource数据源，Value是Connection连接），也就是说每一个线程都对应了一个map，为了应对多数据源的场景所以用map来保存数据源-连接的关系
+用了ThreadLoacl可以保证同一个线程获取同一个Connection连接，也就保证了一个事务内的所有操作都是在同一个数据库连接上的。
+（线程get自己的ThreadLocal，得到Map，根据数据源获取到同一个Connection连接）

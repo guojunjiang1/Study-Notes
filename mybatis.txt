@@ -3,7 +3,7 @@ mybatis是半ORM框架，SpringDataJpa是全ORM框架，SpringDataJpa实体类�
 mybatis的工作流程：
 ①：获取配置文件的输入流
 ②：创建sqlSessionFactoryBuilder对象
-③：sqlSessionFactoryBuilder.build()创建sqlSessionFactory对象，并将配置文件解析成Configuration对象（Configuration包括了数据库的连接信息，以及用map存放配置文件中的信息）
+③：sqlSessionFactoryBuilder.build()创建sqlSessionFactory对象，并传入配置文件输入流并将配置文件解析成Configuration对象（Configuration包括了数据库的连接信息，以及用map存放配置文件中的信息）
 ④：sqlSessionFactory.openSession()创建sqlSession对象
 ⑤：用户通过sqlSession.getMapper（接口.class）来生成代理对象并返回
 ⑥：用户调用代理对象的方法，代理对象内部会根据全限定类名+方法名到Configuration的map中找到对应的配置信息（sql语句）进行调用，最终返回结果
@@ -12,3 +12,18 @@ mybatis如何在插入数据后获取主键值：xml中useGeneratekeys属性设�
 
 Mybatis 都有哪些 Executor 执行器？
 Mybatis有三种不同的执行器：①：SimpleExecutor②：ReuseExecutor③：BatchExecutor
+
+手写mybatis：
+①：获取SqlMapConfig配置文件的输入流
+②：创建sqlSessionFactoryBuilder对象
+③：sqlSessionFactoryBuilder.build()创建sqlSessionFactory对象，并传入配置文件输入流并将配置文件解析成Configuration对象
+       Configuration中包括的信息：mysql的驱动、连接信息
+ 			    一个Map<String,Mapper>类型的，Key为全限定类名+方法名，Value为sql和返回值类型
+④：sqlSessionFactory.openSession()创建sqlSession对象
+⑤：用户通过sqlSession.getMapper（接口.class）来生成代理对象并返回
+			    在这个过程中拼接好sql，底层调用JDBC来执行sql
+
+简单来说：获取核心配置类输入流，解析称为configuration对象，根据注解/配置文件将所有的(全限定类名+方法名)Key,对应的(sql和返回类型)Value封装到Map当中
+	 创建代理对象，根据用户调用的方法名+全限定类名到map中获取sql和返回类型，此时对sql进行替换(将#{}替换为实参，根据method和args将参数名和对应的实参值放入Map2中)
+	 根据sql中的参数名(sql中#{参数名}和方法的参数名一致)，到map中获取到实参，然后进行替换，最终得到sql
+	 底层调用jdbc执行sql，并根据返回类型封装结果。

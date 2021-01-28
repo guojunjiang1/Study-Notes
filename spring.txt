@@ -1,14 +1,17 @@
+实例化：为对象在内存中开辟一处空间
+初始化：开辟空间并填充对象中的属性，赋初始值
 Spring包括了IOC和AOP，IOC的主要功能是依赖注入和控制反转，AOP就是面向切面编程
 IOC:依赖注入：可以通过Set方法、注解或构造器的形式在新建一个类时注入一些数据
        控制反转：将创建类的步骤交给spring去处理，将类存入到Spring的容器当中，将来底层通过反射+工厂模式来实例对象
 
 IOCBean的加载过程：
-①：首先加载配置文件（可以是xml或者是java配置类），Spring使用BeanDefinitionReader去处理这些配置信息，xml的话有一个XmlBeanDefinitionReader去处理
-②：读取完配置文件后，通过BeanDefintionParser获取Class路径，将bean封装成BeanDefinition后就放入beanDefinltionMap中（也是个hashmap，专门用来存放bean信息的，Key为beanid，value为class路径）
-③：对bean做初始化：通过DefaultListableBeanFactory的getBean()方法去初始化，实际由AbstractAutowireCapableBeanFactory的doCreateBean（）去完成。
+①：首先加载配置文件（可以是xml或者是java配置类），Spring使用BeanDefinitionReader去读取这些配置信息，xml的话有一个XmlBeanDefinitionReader去处理
+②：读取完配置文件后，通过BeanDefintionParser获取Class路径，将这些属性封装成BeanDefinition对象后就放入beanDefinltionMap中（也是个hashmap，专门用来存放bean信息的）
+③：对bean做初始化，填充bean中的属性	：通过DefaultListableBeanFactory的getBean()方法去初始化，实际由AbstractAutowireCapableBeanFactory的doCreateBean（）去完成。
 
 Bean的生命周期：
 ①Spring容器从XML中读取bean的定义，实例化bean（加载容器且读取bean在底层对应的方法是：refresh方法）
+开始做bean初始化
 ②如果bean实现了BeanNameAware接口，Spring传递bean的Id到setBeanName
 ③如果bean实现了BeanFactoryAware接口，Spring传递beanfactory给setBeanFactory
 ④如果bean实现了BeanPostProcessor接口，则会调用前置处理器
@@ -23,7 +26,7 @@ BeanFactory无法满足不断更新的Spring的需求，于是ApplicationContext就基本上代替了B
 
 BeanFactory和FatoryBean的区别：
 BeanFactory是Bean的工厂（容器），ApplicationContext的父类，负责生产管理bean对象的
-FactoryBean是工厂Bean，它不是一个普通的bean对象，当一个类实现FactoryBean接口后可以对bean进行改造。（通过重写FactoryBean中的getObject()方法）
+FactoryBean是工厂Bean，它不是一个普通的bean对象，当一个类实现FactoryBean接口后可以对bean进行改造，自定义bean的加载过程，不使用Spring默认的加载过程。（通过重写FactoryBean中的getObject()方法）
 
 Spring中Bean的作用域：
 Singleton（单例只会实例化一个Bean），prototype（原型：每次调用都会实例化一个bean），request（每次请求过来都会实例化一个bean，该bean仅在当前http request有效）
