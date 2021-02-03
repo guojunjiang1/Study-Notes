@@ -3,6 +3,15 @@ leftJoin是指左连接查询，查询结果包括左边的所有数据（不管
 rightJoin是值右连接查询，查询结果包括右边的所有数据（不管左边有没有对应的）
 InnerJoin是指等值连接，查询结果是左边数据和右边数据有匹配（左边或右边有一边数据不存在就不显示）
 
+union和union all：连接，用于连接两个sql的结果集，union去重，union all不去重
+
+in和exist的区别：In适合主表大子表小，exist适合主表小子表大
+
+limit优化：因为表一旦大了，当查询多个列时，直接limit查询效率 ，可以先求出id，然后再limit
+eg：select * from user where sex='郭' limit 10000 10
+优化为：select * from user where sex='郭' and id>=(select id from user where sex='郭’limit 10000 1) limit 0 10
+（前提是：id是递增存放的）如果这种优化还不够就可以使用游标了
+
 group by:
 一：当前有一个需求，需要分组查询，但要查询的字段比groupBy后面包含的字段多（正常情况下select后面的字段只能是groupBy后面的字段和聚合函数）
 select * from tb where id in (select max(id) from tb group by name) 
@@ -30,6 +39,9 @@ select * from tb where DATE_FORMAT(时间段列名，"%Y%m")= DATE_FORMAT(CURDAT
 select curdate()
 六：查询当前年月日
 select year(curdate())/month(curdate())/day(curdate())
+
+怎么写sql最高效：
+https://mp.weixin.qq.com/s/_zGQqw0J8zuDSNwcIO9wVw
 
 一些练习：
 https://blog.csdn.net/rocling/article/details/82026704（行转列）

@@ -1,9 +1,12 @@
 实例化：为对象在内存中开辟一处空间
 初始化：开辟空间并填充对象中的属性，赋初始值
 Spring包括了IOC和AOP，IOC的主要功能是依赖注入和控制反转，AOP就是面向切面编程
-IOC:依赖注入：可以通过Set方法、注解或构造器的形式在新建一个类时注入一些数据
-       控制反转：将创建类的步骤交给spring去处理，将类存入到Spring的容器当中，将来底层通过反射+工厂模式来实例对象
-
+IOC:
+控制反转：将对象交给spring去管理，将对象放入到Spring容器当中，我们不必关系对象是如何创建，这部分由spring帮我们去做了，我们直接拿来使
+用即可，将来底层通过反射+工厂模式来实例对象
+依赖注入：可以理解为控制反转的具体实现，可能在一个对象中会依赖到其他对象，此时我们无需关心依赖关系，添加相应的陪之后对象中的依赖关系将
+被spring自动注入到对象当中，可以通过Set方法、注解或构造器的形式在新建一个类时注入一些数据
+       
 IOCBean的加载过程：
 ①：首先加载配置文件（可以是xml或者是java配置类），Spring使用BeanDefinitionReader去读取这些配置信息，xml的话有一个XmlBeanDefinitionReader去处理
 ②：读取完配置文件后，通过BeanDefintionParser获取Class路径，将这些属性封装成BeanDefinition对象后就放入beanDefinltionMap中（也是个hashmap，专门用来存放bean信息的）
