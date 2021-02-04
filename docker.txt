@@ -1,0 +1,62 @@
+docker是一种轻量级的操作系统虚拟化技术，它利用Linux的机制来创建独立的容器，各容器中存放原本的环境（将软件打包成镜像，上传到docker
+私服，然后拉取镜像，通过镜像运行容器，此时容器中的环境就是打包时的环境）
+
+镜像和容器：
+镜像是构建Docker的基石，用户通过镜像来运行容器。eg：通过一个mysql镜像来运行mysql容器，每运行一个容器就相当于运行一个软件，对容器
+的启停就是对软件的启停
+
+docker和k8s(kubernetes)的关系：
+docker是容器，随着容器的增多，需要对其进行管理这时候就可以用到kubernetes对其进行管理了。
+
+docker基本命令：
+下载docker：yum install docker
+启动docker：systemctl start docker（设置docker自启动，systemctl stop docker）
+停止docker：systemctl stop docker
+
+docker操作镜像的基本命令：
+查找镜像：docker search mysql
+下载镜像：docker pull mysql
+查看已下载的镜像：docker images
+删除已下载的镜像：docker rmi <镜像id>（IMAGE ID）
+删除已下载的所有镜像：docker rmi -f $(docker images -qa)
+
+docker操作容器的基本命令：
+通过镜像运行容器：docker run --name <自定义名> -d -p <宿主机端口号>:<端口号> <镜像名>:<版本号TAG>
+					      （将服务器xx端口映射到docker的xx端口，这样可以通过访问服务器的端口来访问docker）
+查看运行中的容器：docker ps
+停止运行中的容器：docker stop <容器id/自定义名>(CONTAINER ID)
+查看所有的容器：docker ps -a
+启动停止过的容器：docker start <容器id/自定义名>
+删除容器：docker rm <容器id/自定义名>
+查看容器的日志：docker logs <容器id>
+向容器中拷贝文件：docker cp <文件名> <容器id>:<容器目录>
+从容器中拷贝文件：docker cp <容器id>:<容器目录> <文件名>
+
+docker迁移与备份：
+将容器保存为镜像：docker commit <容器名> <镜像名>
+将镜像保存为文件：docker save -o <文件名> <镜像名>
+将文件恢复成镜像：docker load -i <文件名>
+
+docker操作mysql的步骤：
+①：docker search mysql：查找mysql镜像
+②：docker pull mysql：下载镜像
+③：docker run -di --name=gmysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 mysql:latest：通过镜像运行容器
+④：docker exec -it 2b8f856249cb(容器id)  bash：进入到mysql容器中
+⑤：mysql -u root -p：输入用户名
+⑥：输入密码，进入mysql
+⑦：这时候就可以调用mysql的命令了（注意：在命令末加；），想退出去就exit/ctrl+c
+⑧：想要外部native访问docker中的mysql需要做以下事情：
+       create user 'guo' identified with mysql_native_password by '123456';（添加用户guo，并指定密码为123456）
+       grant all privileges on *.* to 'guo';（为guo用户添加权限）
+       flush privileges；（刷新权限）
+
+dockerFile：
+提前编写dockerFile，才能够让我们的项目变成镜像
+
+让java项目变成docker镜像的步骤：
+①：在本地对java项目进行打包，直接在maven中install即可（需要提前将父工程install，以及一些依赖的项目install）
+②：将打包好的jar包放到linux中
+③：创建并编写(vim)dockerFile
+④：docker build -t <jar包名> .(注意后面有.)：通过dockerFile构建jar包的镜像
+⑤：docker images：查看镜像
+
