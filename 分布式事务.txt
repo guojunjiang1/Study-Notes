@@ -25,6 +25,9 @@ AP，追求最终一致性，若中间有程序宕机或消息丢失，任务没完成数据库任务就不会删除，
 	          第二阶段回滚/提交（cancel/confirm）：当所有分支都执行成功，则正式扣减库存，清空frozen字段，若分支有的失败，则直接清空frozen字段
 TCC性能要比2pc（两阶段提交）高，但是TCC会侵入我们的代码，使用TCC需要额外编写3个方法，try方法，confirm方法和cancel方法
 
+想要使用TCC的话，需要先引入TCC框架（ByteTCC、himly、tcc-transaction），然后将原来的一个接口拆分成三个接口分别是try（预提交，增加frozen字段），confirm（提交，清空frozen字段并修改库存字段）
+，cancel（回退，直接清空frozen字段），我们的业务链路调用try接口即可，当出现错误或成功后，TCC框架来自动调用cancel或confirm接口。
+
 五：基于AT方式的分布式事务（强一致性CP）
 通过SpringCloudAlibaba的seata来实现，seata是由AOP动态代理实现，seata提供了很多种模式：AT,TCC,SAGA（有一个步骤失败了，补偿前面成功的步骤）,XA
 

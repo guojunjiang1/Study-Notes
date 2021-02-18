@@ -1,0 +1,5 @@
+数组转集合：
+调用Arrays.asList()方法，需注意的是在转换成集合后，不能对集合进行增删操作不然会报错
+
+集合转数组：
+list.toArray(new T[list.size()]);

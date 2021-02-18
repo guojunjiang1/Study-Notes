@@ -38,7 +38,9 @@ sentinel：服务治理：降级：自己在方法上添加sentinelResource（fallback）
 					     Sentinel在熔断后，在指定的时间窗口内所有请求直接返回熔断方法，当过了时间窗口再关闭熔断		
 
 		限流：自己在方法上添加sentinelResource（blockhandler），sentinel图像化界面+参数
-		          方法限流：根据URL或sentinelResource的Value来选定一个资源：限流的类型：直接（限流自己），关联（B达到阈值限流A）
+		          方法限流：根据URL或sentinelResource的Value来选定一个资源：
+			           限流的方式：指定qps，指定线程数
+			           限流的对象：直接（限流自己），关联（B达到阈值限流A）
 			           限流的方法：直接（阈值是多少，就是多少） 预热（常见于秒杀刚开启时，刚开始阈值为设定阈值的1/3，过一段时间慢慢达到阈值） 排队（所有请求都接收，但是得排队执
 			           行，排队的请求超过设定时间后出发限流）
 		          参数限流：根据URL或sentinelResource的Value来选定一个资源并指定他的一个方法参数（只能是基本数据类型）常见于热点数据

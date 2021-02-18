@@ -41,6 +41,7 @@ docker操作mysql的步骤：
 ①：docker search mysql：查找mysql镜像
 ②：docker pull mysql：下载镜像
 ③：docker run -di --name=gmysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 mysql:latest：通过镜像运行容器
+（-p xx:yy，这里的xx是容器的端口，yy是指映射到宿主机的端口，一般宿主机就是Linux系统，即访问Linux的yy端口可以转发到xx端口上）
 ④：docker exec -it 2b8f856249cb(容器id)  bash：进入到mysql容器中
 ⑤：mysql -u root -p：输入用户名
 ⑥：输入密码，进入mysql

@@ -1,4 +1,4 @@
 异常的基类是Throwable，Error和Exception继承Throwable，RuntimeException继承Exception
 Error：是java运行环境中的内部错误或者硬件问题，程序员很难解决的错误。比如：内存溢出，栈空间不足等。
-Exception：Exception包括已检查异常和不受检查异常，对于已检查异常，在编译期间就需提前对其进行捕获或抛出，常见的已检查异常有：IO异常，SQL异常和调用Thread.sleep后需要显式的抛出
+Exception：Exception包括受检时异常和运行时异常，对于受检时异常，在编译期间就需提前对其进行捕获或抛出，常见的已检查异常有：IO异常，SQL异常和调用Thread.sleep后需要显式的抛出
 RuntimeException：运行时异常，它是Exception的子类，不受检查，因此在编译时无需对其进行捕获或抛出，常见的运行时异常有：数组越界，空指针

@@ -6,17 +6,18 @@ ThreadLoal为每个线程提供一个私有局部变量
 ④：ThreadLocal本身并不存值，set的值是存放在ThreadLoclMap当中的，可以通过ThreadLocl来作为key从ThreadLocalMap中获取set的值。
 
 为什么把ThreadLoacl存放到ThreadLocalMap中而不是HashMap中？
-一：ThreadLoaclMap的Key可以指定为特殊类型，如ThreadLocal类型
+一：ThreadLoaclMap的Key可以指定为特殊类型，如ThreadLocal的引用
 二：ThreadLocalMap能解决内存泄漏问题，在每次写数据和读数据时都会清除掉已过期的垃圾数据
-
+三：
 ThreadLocal的内存泄漏问题：
-使用完ThreadLocal如果不调用remove方法的话，当前Thread对应的ThreadLocalMap中的Value就会一直存在，直至线程销毁，但是现在一般都使用线程池的方式，线程的生命周期就很长，在这个过程中value
-不被回收就造成了内存泄漏，因此其实内存泄漏与ThrealocalMap的key是不是弱引用关系不大，主要是使用完没调用remove方法导致的。
-在调用 set()、get()时会清理掉已过期（key为null）的数据，调用remove() 方法的时候，会清理掉当前ThreadLoacl对应的数据 。
-使用完 ThreadLocal方法后 最好手动调用remove()方法
+使用完ThreadLocal后它的Key会被垃圾收集器清除掉，但是当前线程对应的ThreadLocalMap中的Value却会一直存在，直至线程销毁，但是现在一般都使用线程池的方式，线程的生命周期就很长，在这个过程中
+value不被回收就造成了内存泄漏，虽然调用它的set()、get()方法会对key为null的entry进行回收，但如果恰好一直没调用那么就一直在内存泄漏，因此其实内存泄漏与ThrealocalMap的key是不是弱引用关系不大，
+主要是使用完没及时调用remove方法导致的。
 
-ThreadLocal的set方法：底层会去调用ThreadLocalMap，如果不存在，则会先给该线程创建MAP，存在则以ThreadLocal的引用作为key，Value为当前线程在对应的ThreadLocal中设置的值存放到ThreadLocalM
-ap中
+在调用set()、get()时会清理掉ThreadLoaclMap中已过期（key为null）的entry数据，调用remove() 方法的时候，会清理掉当前ThreadLoacl在ThreadLocalMap中的entry数据 。
+使用完ThreadLocal方法后 最好手动调用remove()方法，防止内存泄漏。
+
+ThreadLocal的set方法：底层会去调用ThreadLocalMap，如果不存在，则会先创建MAP，存在则以ThreadLocal的引用作为key，Value为当前线程在对应的ThreadLocal中设置的值存放到ThreadLocalMap中
 ThreadLocal的get方法：底层会去调用ThreadLocalMap，若Map不存在则会创建并返回初始值（调用initvalValue方法，返回初始值），存在则以当前线程对应的ThreadLocal的引用作为key获取存放的值
 ThreadLocal的remove方法：清除掉当前线程对应的ThreadLocalMap中的Entry（key，value）
 ThreadLocal的initvalValue方法：当前线程没有调用set方法直接调用get方法时会调用initvalValue方法，默认的返回值为null，可以重写该方法修改返回值
@@ -36,4 +37,4 @@ ThreadLocal在Spring中的使用场景：(Spring事务）
 事务的作用就是保证一组操作要么同时成功要么同时失败，有个前提条件是一个事务内的所有操作都是在同一个数据库连接上（连接不是线程安全的，多线程环境下事务会出问题）。
 在Spring事务中ThreadLocal保存的类型是一个Map（Key是DataSource数据源，Value是Connection连接），也就是说每一个线程都对应了一个map，为了应对多数据源的场景所以用map来保存数据源-连接的关系
 用了ThreadLocal可以保证每个线程的操作都可以获取同一个Connection连接，也就保证了一个事务内的所有操作都是在同一个数据库连接上的。
-（线程get自己的ThreadLocal，得到Map，根据数据源获取到同一个Connection连接）
+（线程threadLocal.get()，得到Map，根据数据源获取到同一个Connection连接）
