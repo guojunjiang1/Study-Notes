@@ -16,8 +16,8 @@ ConcurrentModificationException异常
 原因：在迭代器遍历时，每次修改后modCount的值都会加1，但是此时expectedModCount还是以前保存的modCount的值，每当迭代器遍历下一个元素之前会进行判断，两者不相等，抛出异常。
 
 ArrayList是线程不安全的：
-解决方法：①使用Vector ②通过工具类Collections.synchronizedList转换为线程安全的③使用CopyOnWriteArrayList（写时复制（执行add方法时，先加锁，然后将原来的数据拷贝一份，在拷贝的数据下添加新数
-据，然后再将拷贝的数据重新覆盖原数据）且它是读写分离的，读的时候不加锁，写的时候加锁，锁就是Synchronized）
+解决方法：①使用Vector ②通过工具类Collections.synchronizedList转换为线程安全的③使用CopyOnWriteArrayList（写时复制（执行add方法时，先加lock锁，然后将原来的数据拷贝一份，在拷贝的数据下添加
+新数据，然后再将原指针指向新数组）且它是读写分离的，读的时候不加锁，写的时候加锁，锁就是ReentrantLock）
 
 快速失败（fail-fast）和安全失败（fail-safe）的区别：
 java.util包下的所有类都是快速失败的，java.util.concurrent下的所有类都是安全失败的

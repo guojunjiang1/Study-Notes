@@ -1,9 +1,9 @@
 SynchroniezdÊÇ±£Ö¤ÔÚ²¢·¢Çé¿öÏß³Ì°²È«£¬±£Ö¤ÁË¿É¼ûÐÔ£¬Ô­×ÓÐÔ£¬½ûÖ¹Ö¸ÁîÖØÅÅ¡£
-Ïß³Ì°²È«£ºÖ¸¶à¸öÏß³ÌÍ¬Ê±¶ÔÒ»¹²ÏíÊý¾Ý½øÐÐ²Ù×÷£¬Ëùµ¼ÖÂ³öÏÖµÄ´íÎó£¬eg£º3¸öÏß³ÌÍ¬Ê±Ö´ÐÐi++»áµ¼ÖÂÖµµÄ¸²¸Ç
 ±£Ö¤¿É¼ûÐÔ£ºÌí¼ÓÁËSynchronizedºó£¬Ïß³ÌÔÚ»ñÈ¡Ëøºó£¬¶¼ÒªÇå¿Õ¹¤×÷ÄÚ´æµÄÖµ£¬ÖØÐÂµ½Ö÷ÄÚ´æÖÐ»ñÈ¡×îÐÂµÄÖµ£¬±£Ö¤ÁË¿É¼ûÐÔ¡£
 ±£Ö¤Ô­×ÓÐÔ£ºÌí¼ÓÁËSynchronizedºó£¬ÒòÎªËøÊÇ»¥³âµÄ£¬ËùÒÔÍ¬Ò»Ê±¼äÖ»ÄÜÓÐÒ»¸öÏß³Ì»ñÈ¡µ½Ëø£¬Õâ¾Í±£Ö¤ÁËÔ­×ÓÐÔ¡£
 ¿ÉÖØÈëÐÔ£ºSynchronizedÖÐÓÐÒ»¸örecursions¼ÆÊýÆ÷£¬¿ÉÒÔ¼ÇÂ¼»ñÈ¡ËøµÄ´ÎÊý¡£
 ²»¿ÉÖÐ¶ÏÐÔ£ºµ±Ïß³ÌÏë»ñÈ¡ËøÊ±£¬Ëø±»ÆäËûÏß³ÌÕ¼ÓÃ£¬´ËÊ±¸ÃÏß³Ì´¦ÓÚ×èÈûµÈ´ý×´Ì¬£¬ÔÚ¸Ã×èÈûµÈ´ý×´Ì¬ÏÂ²»ÄÜ±»ÖÐ¶Ï¡£
+²»±£Ö¤½ûÖ¹Ö¸ÁîÖØÅÅ
 
 SynchronizedµÄµ×²ãÔ­Àí£¨ÖØÁ¿¼¶Ëø£©£º
 Ò»£ºÍ¬²½´úÂë¿ì£ºÔÚ·´»ã±àµÄµ×²ã£¬SynchronizedÔÚÖ´ÐÐÖ®Ç°»áÏÈÖ´ÐÐÒ»¸öMonitorEnter£¬ÏÈÈ¥ÕÒÍ¬²½´úÂë¿éÖÐµÄËø¶ÔÏóËù¶ÔÓ¦µÄMonitor¶ÔÏó£¨Ò»¸öC++¶ÔÏó£¬ÕæÕýµÄËø¶ÔÏó£©£¬Èç¹ûMonitor²»´æÔÚ£¬ÔòJVM»á
@@ -28,7 +28,7 @@ MonitorµÄµ×²ã»á´óÁ¿µÄµ÷ÓÃÄÚºËº¯Êý£¬parkºÍunpark£¬»áÔì³ÉÓÃ»§Ì¬ºÍÄÚºËÌ¬µÄ´óÁ¿ÇÐ»»£
 
 SynchronizedµÄÓÅ»¯£¨JDK6Ö®ºó£©
 SynchronizedÓÐ¶àÖÖËøÐÎÌ¬£¬ËøµÄÉý¼¶¹ý³Ì£ºÎÞËø->Æ«ÏòËø->ÇáÁ¿¼¶Ëø->×ÔÐýËø->ÖØÁ¿¼¶Ëø
-SynchronizedµÄËø×´Ì¬´æ·ÅÔÚËø¶ÔÏóÔÚÄÚ´æÖÐµÄ¶ÔÏó²¼¾ÖµÄmarkWordµ±ÖÐ£¬Ò»¸ö¶ÔÏóÔÚÄÚ´æÖÐµÄ¶ÔÏó²¼¾Ö·ÖÎª£º
+SynchronizedµÄËø×´Ì¬´æ·ÅÔÚËø¶ÔÏóÔÚÄÚ´æÖÐµÄ¶ÔÏó²¼¾ÖµÄ¶ÔÏóÍ·µÄmarkWordµ±ÖÐ£¬Ò»¸ö¶ÔÏóÔÚÄÚ´æÖÐµÄ¶ÔÏó²¼¾Ö·ÖÎª£º
 ¢Ù£º¶ÔÏóÍ·£¨markWord£¬KlassPointer£©(µ±¸Ã¶ÔÏóµ±×÷Ëø¶ÔÏóµÄÊ±ºò¾Í»á´æ·ÅËøµÄÐÅÏ¢£¬»¹»á´æ·ÅGCµÄÐÅÏ¢Èç·Ö´úÄêÁäºÍhashcode)£¨KIassPointerÎªClass¶ÔÏóÖ¸Õë£¬Ö¸Ïòµ±Ç°¶ÔÏó¶ÔÓ¦µÄÀà£¬
 ¿ÉÒÔËæÊ±ÖªµÀµ±Ç°¶ÔÏóÊÇÄÄ¸öÀàµÄÊµÀý£©
 ¢Ú£ºÊµÀýÊý¾Ý£¨¶ÔÏóÖÐµÄ¸÷ÖÖ×Ö¶Î°üÀ¨¸¸ÀàµÄ×Ö¶Î£¬Æä´óÐ¡ÓÉ×Ö¶ÎµÄ´óÐ¡¾ö¶¨£¬±ÈÈçbyteºÍbooleanÊÇ1×Ö½Ú£¬shortºÍcharÊÇ2×Ö½Ú£¬intºÍfloatÊÇ4×Ö½Ú£¬longºÍdoubleÊÇ8×Ö½Ú£¬referenceÊÇ4×Ö½Ú£©

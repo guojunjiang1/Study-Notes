@@ -14,11 +14,25 @@ Springboot：①：起步依赖：将某种功能的坐标打包到一起，也�
 	 @ControllerAdvice。@ExceptionHandler（异常类型.class）用于全局异常处理
 自动配置原理：
 ①：在启动类会添加@SpringBootApplication注解，在项目启动时会扫描到该注解。	
-该注解包括ComponentScan，EnableAutoConfiguration，SpringBootConfiguration（标明该类SpringBoot的主配置类）
+该注解包括ComponentScan(扫描当前启动类所在包及其子包下的类，将被注解修饰的类加入到容器中)
+	 EnableAutoConfiguration（开启自动配置）
+	 SpringBootConfiguration（标明该类SpringBoot的主配置类，允许在上下文中注册额外的bean，或导入其他配置类）
 ②：通过EnableAutoConfigurantion实现自动配置
-       它会从当前类路径下的META-INF/spring.factories中获取配置，将这些配置封装成自动配置类导入容器中，这时自动配置就完成了
-       （通俗来讲，SpringBoot会根据引入的SpringBoot的Jar包中META-INF目录下的Spring.factories(配置了Jar包中的类的全限定类名)文件中的参数来封装成bean放入Spring容器中）
+       它会从当前类路径下的META-INF/spring.factories中获取配置，将这些配置信息封装成自动配置类导入容器中，这时自动配置就完成了
+       （通俗来讲，SpringBoot会根据pom中引入的所有Jar包中META-INF目录下的Spring.factories(配置了类的全限定类名)文件中的参数来封装成很多bean放入Spring容器中）
 ③：它还会自动扫描启动类及其子包下的所有组件到容器中
+
+自动配置实例：（SpringBootAutoConfiguration下）
+①：
+一：新建一个工程，引入spring-boot-starter基础依赖
+二：新建一个配置类用Configuration注解标识，添加对应的配置，eg:线程池，用@Bean注解和@ConditionalOnClass(ThreadPoolExecutor.class)标识
+三：在resources下新建META-INF/spring.factories配置文件，然后将配置类的全限定类名写进去
+②：
+一：新建一个工程，在pom中引入刚才工程的依赖
+二：直接Autowired注入就可以使用了（因为在启动类启动时，它会自动扫描到我们pom中引入的依赖，并会自动扫描到resources下的META-INF下
+的spring.factories配置文件，根据全限定类名生成自动配置类装载到容器中）
+*如果不采用这种spring.factories的方式来使用其他工程的bean，我们可以在启动类上添加CompentScan(basePackages={"包名"})的方式来手动扫描
+对应的bean，也是可以使用其他工程的bean的
 
 单体架构和分布式和微服务：
 单体架构：最初学习的JAVAWEB时，整个系统无论前后端都是部署在一个进程里，整体运行的

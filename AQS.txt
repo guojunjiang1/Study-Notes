@@ -20,7 +20,7 @@ AQS支持两种模式：独占、共享
 共享（资源某一时刻可以被多个线程占用）：Semaphore，CountDownLatch，CyclicBarrier，ReadWriteLock
 
 LockSupport：
-LockSupport：LockSupport就是用来pork阻塞和unpork唤醒线程的，它底层封装了unsafe类。
+LockSupport：LockSupport就是用来pork阻塞和unpork唤醒线程的，它底层用到了unsafe类。
 Object也有阻塞和唤醒方法：wait，notiify；它俩必须在synchronized内部使用不然会报错。
 Condition也有阻塞和唤醒方法：await signal；它俩必须在lock内部使用不然会报错。（它俩都是线程必须先获取到锁之后，才能调用阻塞唤醒方法，不然会报错）
 LockSupport的阻塞和唤醒方法：park，unpark；它俩不依赖于锁，无需获取锁就可以执行。

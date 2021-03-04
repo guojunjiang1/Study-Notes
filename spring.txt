@@ -12,7 +12,7 @@ IOCBean的加载过程：
 ②：读取完配置文件后，通过BeanDefintionParser获取Class路径，将这些属性封装成BeanDefinition对象后就放入beanDefinltionMap中（也是个hashmap，专门用来存放bean信息的）
 ③：对bean做初始化，填充bean中的属性	：通过DefaultListableBeanFactory的getBean()方法去初始化，实际由AbstractAutowireCapableBeanFactory的doCreateBean（）去完成。
 
-Bean的生命周期：
+Bean的生命周期（初始化过程）：
 ①Spring容器从XML中读取bean的定义，实例化bean（加载容器且读取bean在底层对应的方法是：refresh方法）
 开始做bean初始化
 ②如果bean实现了BeanNameAware接口，Spring传递bean的Id到setBeanName
