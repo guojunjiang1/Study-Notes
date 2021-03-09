@@ -1,23 +1,16 @@
-elaticsearch是基于分词技术的倒排索引
+elasticsearch是基于分词技术的倒排索引（正排索引：根据文档Id来找文档；倒排索引：根据文档的内容来找文档）
 
-es中查询方式：
-指定一个域查询：精确查询（不将查询的关键字分词）：termQuery
-	           根据id查询：termsQuery
-	           全文检索（查询的关键词分词）：matchQuery
-指定多个域查询：多词检索（查询的关键词分词）：MuctiMatchQuery
-	           布尔查询（将多种查询结合在一起）：BooleanQuery
-将查询结果进行过滤：过滤器filter，过滤器查询不分词（和布尔查询结合使用）
-聚合：对查询的结果进行聚合，eg：价格100-200,200-300
+elasticSearch中的概念：
+①：index(包括两个重要概念,Mapping和Setting)——数据表
+Mapping定义的是字段和字段的类型，Setting定义的是数据的不同分布。
+②：type——类型，7.0之前一个index可以创建多个Type，之后一个index只能对应一个Type
+③：document——一行数据
+④：field——列名（字段名）
+⑤：节点：一个结点就相当于是一个ElasticSearch实例
+⑥：shard：分片，可以将一个index中的数据分布到不同的节点上（分段存储），有利于数据的水平扩展
+⑦：replica：副本，用于解决高可用问题，一个分片可包括多个副本
 
-elaticSearch中的概念
-index——数据表
-type——类型
-document——一行数据
-field——列名（字段名）
-shard：分片，可以将一个index中的数据分布到不同的机器上（分段存储），进行横向扩展
-replica：副本，一个shard包括多个replica
-
-elatcisearch的集群：
+elasticSearch的集群：
 es集群多个节点，会自动选举一个master节点，master节点主要做一些管理的工作，切换primary shard和replica shard
 	           当master节点挂掉之后，那么会重新选取一个新的节点成为master节点
 当一个非master节点挂掉之后，其他节点会保存挂了的节点的数据，当挂了的节点修复成功，数据会恢复
@@ -30,6 +23,15 @@ es生产环境的架构：
 一共有2台机器每台是8核64G的，集群总内存是128G
 每天日增200W条数据，差不多50MB，每个月增加1.5G
 共有2个索引库（index），每个索引库下有默认的5个shard分片
+
+es中查询方式：
+指定一个域查询：精确查询（不将查询的关键字分词）：termQuery
+	           根据id查询：termsQuery
+	           全文检索（查询的关键词分词）：matchQuery
+指定多个域查询：多词检索（查询的关键词分词）：MuctiMatchQuery
+	           布尔查询（将多种查询结合在一起）：BooleanQuery
+将查询结果进行过滤：过滤器filter，过滤器查询不分词（和布尔查询结合使用）
+聚合：对查询的结果进行聚合，eg：价格100-200,200-300
 
 elaticsearch和solr的区别：
 一：它俩都是基于分词技术的倒排索引
