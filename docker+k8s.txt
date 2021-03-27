@@ -62,3 +62,23 @@ dockerFile：
 ④：docker build -t <jar包名> .(注意后面有.)：通过dockerFile构建jar包的镜像
 ⑤：docker images：查看镜像
 
+k8s：
+全称kubernetes，由谷歌开源，它是基于容器的集群管理平台，k8s可以很方便的对docker容器进行管理
+
+一个k8s系统，通常称为一个k8s集群。
+这个集群主要分为两部分内容：一个master（主节点），一群Node（计算节点）
+master节点主要是负责管理和控制，Node节点是工作负载节点，里面是具体的容器
+
+Master：
+master节点包括：API Server、Scheduler、Controller manager、etcd
+API Server：是整个系统的对外接口，供客户端和其他组件调用，相当于“营业厅”
+Scheduler：负责对集群内部的资源进行调度，相当于“调度室”
+Controller manager：负责管理控制器，相当于“大总管”
+
+Node：
+node节点包括：pod、Docker、Kubelet、Kube-proxy、Fluentd
+pod：是Kubernetes最基本的操作单元，一个Pod代表着集群中运行的一个进程，它内部封装了一个或多个紧密相关的容器。
+Docker：创建容器的
+Kubelet：负责监视它所在Node上的Pod，包括创建、修改、监控、删除
+Kube-proxy：主要负责为Pod对象提供代理
+Fluentd：负责日志收集、存储与查询

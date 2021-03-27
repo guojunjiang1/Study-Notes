@@ -1,6 +1,7 @@
 Springboot：①：起步依赖：将某种功能的坐标打包到一起，也就是整合多个jar包成一个jar包
 	     ②：自动配置：Springboot可以在项目启动时加载大量的自动配置类
 常用注解：（https://www.cnblogs.com/ldy-blogs/p/8550406.html）
+<<<<<<< HEAD
 	 @ConfigurationProperties(pefix=“前缀”)注解的方式从yml获取配置（eg：test：deg: 123 在程序中就可以指定prepix=“test”并在代码中提供deg属性的get/set方法来注入123）
 		@EnableConfigurationProperties：使使用 @ConfigurationProperties 注解的类生效。
 	 @Value（"${前缀}"）:从yml中获取配置
@@ -12,13 +13,46 @@ Springboot：①：起步依赖：将某种功能的坐标打包到一起，也�
 	 @ImportResource：加载xml配置文件
 	 @Resource和@Autowired:都是自动注入一个是ByName一个是ByType
 	 @ControllerAdvice。@ExceptionHandler（异常类型.class）用于全局异常处理
+=======
+***启动类层的注解：
+@EnableConfigurationProperties（value={xx.class}）：在启动类上添加，使使用 @ConfigurationProperties 注解的类生效。
+@MapperScan("包名"):扫描dao层的mapper
+@EntityScan（"包名"）：扫描实体类（springDataJpa）
+@ComponentScan（basePackages={"包名"}）:扫描指定包下的组件
+@EnableDiscoveryClient：将当前服务注册到注册中心
+@EnableMetrics：开启埋点功能
+@SpringBootApplication：标明当前项目是SpringBoot项目（开启自动配置，包扫描）包括EnableAutoConfiguration，CompentScan，SpringBootConfiguration三个注解
+@EnableFeignsClient：开启Feign
+@EnableScheduling：开启SpringTask定时任务
+@EnableAsync：开启多线程异步调用，在异步方法上需添加@Async（"线程池bean名称"）
+***配置类的注解：
+@Configuration：标明当前类是一个配置类	
+@Import：导入其他配置类
+@ImportResource：加载xml配置文件
+@Bean：将所标注的类添加到Spring容器中，id为方法名，类型为返回值
+***获取配置文件内容的注解：
+@ConfigurationProperties(pefix=“前缀”)注解的方式从yml获取配置（eg：test：deg: 123 在程序中就可以指定prepix=“test”并在代码中提供deg属性的get/set方法来注入123）
+@Value（"${前缀}"）:从yml中获取配置
+***方法参数的注解：
+@RequestBody：当传过来的参数是JSON字符串时将其转换成对象
+@ResponseBody：将返回值转为JSON字符串类型
+@RequestParam：将传来的参数和接收的参数做映射
+@Param：在Mybatis接口方法常见，将传来的参数和接口中的参数做映射
+@PathVariable：常见于RestFul编程
+***其他的注解：	
+@Resource和@Autowired和@Qualifier：@Resource(name="bean"):根据bean名称注入，@Autowired:根据类型注入，@Qualfier("bean")：根据bean名称注入和Autowired配合使用
+@ControllerAdvice。@ExceptionHandler（异常类型.class）用于全局异常处理
+@RefreshScope：配合nacos使用(当前类使用@Value来注入配置文件中的内容后，则可以添加@RefreshScope来激活动态刷新，即使通过nacos修改配置内容后，也无需重启服务，就能获取到最新值)
+@Transactional：开启事务
+
+>>>>>>> 38b4172 (new files)
 自动配置原理：
 ①：在启动类会添加@SpringBootApplication注解，在项目启动时会扫描到该注解。	
 该注解包括ComponentScan(扫描当前启动类所在包及其子包下的类，将被注解修饰的类加入到容器中)
 	 EnableAutoConfiguration（开启自动配置）
 	 SpringBootConfiguration（标明该类SpringBoot的主配置类，允许在上下文中注册额外的bean，或导入其他配置类）
 ②：通过EnableAutoConfigurantion实现自动配置
-       它会从当前类路径下的META-INF/spring.factories中获取配置，将这些配置信息封装成自动配置类导入容器中，这时自动配置就完成了
+       它会从当前类路径下的META-INF/spring.factories中获取配置，根据配置信息将对应的类封装成自动配置类导入容器中，这时自动配置就完成了
        （通俗来讲，SpringBoot会根据pom中引入的所有Jar包中META-INF目录下的Spring.factories(配置了类的全限定类名)文件中的参数来封装成很多bean放入Spring容器中）
 ③：它还会自动扫描启动类及其子包下的所有组件到容器中
 
