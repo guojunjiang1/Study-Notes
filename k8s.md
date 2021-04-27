@@ -61,16 +61,20 @@ Jenkins相当于一个自动化的，提供友好操作界面的持续集成(CI)
 
 ## 项目使用了Jenkins+docker后的工作流程
 * 程序员提交代码到gitlab
+* jenkins新建一个任务，指定git地址，maven命令（清除，编译，打包），以及shell脚本（用于将代码封装成镜像并推送到HARBOR仓库）
+* 任务中再执行一个脚本，这个脚本用于生产环境服务器自动到HARBOR仓库拉取镜像并运行成容器，对外提供访问
 * jenkins自动到gitlab上拉取代码
-* jenkins调用maven进行编译，打包，并将打包后的文件封装成docker镜像，将docker镜像提交到HARBOR镜像仓库
+* jenkins自动调用maven进行编译，打包，并将打包后的文件封装成docker镜像（通过dockerfile），将docker镜像提交到HARBOR镜像仓库（通过build.sh）
 * docker拉取镜像，将其变为容器并运行
 
 ## 项目使用了Jenkins+k8s后的工作流程
 * 程序员提交代码到gitlab
+* jenkins新建一个任务，指定git地址，maven命令（清除，编译，打包），以及shell脚本（用于将代码封装成镜像并推送到HARBOR仓库）
+* 任务中再执行一个脚本，这个脚本用于生产环境服务器自动到HARBOR仓库拉取镜像并运行成Pod，对外提供访问
 * jenkins自动到gitlab上拉取代码
 * jenkins调用maven进行打包，并将打包后的文件封装成docker镜像，将docker镜像提交到HARBOR镜像仓库
 * k8s测试环境拉取镜像封装成pod进行测试
-* 测试通过，k8s正式环境拉取镜像封装成pod，然后发布Service暴露pod供外部访问
+* 测试通过，k8s生产环境拉取镜像封装成pod，然后发布Service暴露pod供外部访问
 
 （Jenkins也是部署在k8s当中的）
 ## pipelline
