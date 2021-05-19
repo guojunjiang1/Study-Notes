@@ -44,3 +44,7 @@ ThreadLocal在Spring中的使用场景：(Spring事务）
 在Spring中，为了保证事务的原子性，它采用了ThreadLocal这个数据结构，ThreadLocal保存的类型是一个Map（Key是DataSource数据源，Value是Connection连接），为了应对多数据源的场景所以用map
 来保存数据源-连接的关系，也就是说每一个线程都对应了一个map，用了ThreadLocal可以保证每个线程的事务内所有操作都获取同一个Connection连接，也就保证了事务的原子性了。
 （线程threadLocal.get()，得到Map，根据数据源获取到同一个Connection连接）
+
+ThreadLocal的子类InheritableThreadLocal
+InheritableThreadLocal支持父子线程间共享数据，也就是说在父线程中用InheritableThreadLocal来保存数据，子线程也可以get到数据。
+如果是ThreadLocal的话，子线程是get不到数据的。
